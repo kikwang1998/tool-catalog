@@ -113,8 +113,8 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
 .modal-close:hover { background: var(--bg); }
 .modal-body { padding: 24px; }
-.modal-img { width: 100%; height: 220px; background: linear-gradient(135deg, #f5f4f1, #ebe9e4); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 80px; margin-bottom: 20px; border: 1px solid var(--border); overflow:hidden; }
-.modal-img img { width:100%; height:100%; object-fit:cover; }
+.modal-img { width: 100%; background: linear-gradient(135deg, #f5f4f1, #ebe9e4); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 80px; margin-bottom: 20px; border: 1px solid var(--border); overflow:hidden; min-height: 80px; }
+.modal-img img { width:100%; height:auto; display:block; object-fit:contain; max-height:480px; }
 .modal-cat { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 8px; }
 .modal-name { font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
 .modal-desc { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 24px; }
