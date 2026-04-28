@@ -20,8 +20,6 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
-
-/* ── 공통 ── */
 .hidden { display: none !important; }
 .btn { padding: 9px 18px; border: none; border-radius: var(--radius); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; }
 .btn-primary { background: var(--accent); color: #fff; }
@@ -32,56 +30,30 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: va
 .btn-danger { background: transparent; border: 1px solid #e5b3b3; color: #c0392b; }
 .btn-danger:hover { background: #fdf0f0; }
 
-/* ── 헤더 ── */
 header {
-  background: var(--primary);
-  color: #fff;
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  background: var(--primary); color: #fff; padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px; position: sticky; top: 0; z-index: 100;
 }
 .logo { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
 .logo-accent { color: var(--accent); }
-.logo-badge { background: var(--accent2); color: #1a1a1a; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px; }
+.logo-badge { background: var(--accent2); color: #1a1a1a; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
 nav { display: flex; gap: 4px; }
 nav button { background: none; border: none; color: rgba(255,255,255,0.65); font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: all .15s; }
 nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: #fff; }
 .admin-btn { background: rgba(200,16,46,0.2) !important; color: #ff8a9a !important; border: 1px solid rgba(200,16,46,0.3) !important; margin-left: 8px; }
-.admin-btn:hover { background: rgba(200,16,46,0.35) !important; }
 
-/* ── 페이지 공통 ── */
 .page { min-height: calc(100vh - 60px); }
 
-/* ══ 홈 ══ */
-#page-home { }
-.hero {
-  background: var(--primary);
-  color: #fff;
-  padding: 64px 32px 56px;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  right: -60px; top: -60px;
-  width: 400px; height: 400px;
-  border-radius: 50%;
-  background: rgba(200,16,46,0.12);
-}
-.hero::after {
-  content: '';
-  position: absolute;
-  right: 80px; bottom: -80px;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  background: rgba(232,160,32,0.1);
-}
+/* 로딩 */
+#loading-screen { position:fixed; inset:0; background:var(--primary); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:999; color:#fff; }
+#loading-screen .spin { width:40px; height:40px; border:3px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:16px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* 홈 */
+.hero { background: var(--primary); color: #fff; padding: 64px 32px 56px; position: relative; overflow: hidden; }
+.hero::before { content:''; position:absolute; right:-60px; top:-60px; width:400px; height:400px; border-radius:50%; background:rgba(200,16,46,0.12); }
+.hero::after { content:''; position:absolute; right:80px; bottom:-80px; width:200px; height:200px; border-radius:50%; background:rgba(232,160,32,0.1); }
 .hero-inner { max-width: 680px; position: relative; z-index: 1; }
 .hero-tag { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent2); margin-bottom: 16px; }
 .hero h1 { font-size: 36px; font-weight: 700; line-height: 1.25; margin-bottom: 16px; letter-spacing: -0.5px; }
@@ -91,142 +63,58 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 .hero-btns .btn-primary { padding: 11px 24px; font-size: 14px; }
 .hero-btns .btn-outline { border-color: rgba(255,255,255,0.3); color: #fff; padding: 11px 24px; font-size: 14px; }
 .hero-btns .btn-outline:hover { background: rgba(255,255,255,0.08); }
-
-.stats-bar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 32px;
-  display: flex;
-  gap: 40px;
-}
-.stat { }
+.stats-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; gap: 40px; }
 .stat-num { font-size: 22px; font-weight: 700; color: var(--accent); }
 .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
 .home-cats { padding: 40px 32px; }
 .section-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 20px; text-transform: uppercase; }
 .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-.cat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px 16px;
-  cursor: pointer;
-  transition: all .15s;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 16px; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 12px; }
 .cat-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-1px); }
 .cat-icon { font-size: 24px; }
-.cat-info { }
 .cat-name { font-size: 13px; font-weight: 500; }
 .cat-count { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-/* ══ 카탈로그 ══ */
+/* 카탈로그 */
 #page-catalog { display: flex; min-height: calc(100vh - 60px); }
-.sidebar {
-  width: 220px;
-  min-width: 220px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  padding: 24px 0;
-  position: sticky;
-  top: 60px;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
-}
+.sidebar { width: 220px; min-width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
 .sidebar-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-muted); padding: 0 20px 12px; text-transform: uppercase; }
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 20px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all .1s;
-  border-left: 3px solid transparent;
-}
+.sidebar-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 20px; font-size: 13px; cursor: pointer; transition: all .1s; border-left: 3px solid transparent; }
 .sidebar-item:hover { background: var(--bg); }
 .sidebar-item.active { background: #fdf0f2; border-left-color: var(--accent); color: var(--accent); font-weight: 500; }
 .sidebar-count { font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 1px 7px; border-radius: 10px; }
 .sidebar-item.active .sidebar-count { background: #fce4e8; color: var(--accent); }
-
 .catalog-main { flex: 1; padding: 28px 32px; }
 .catalog-topbar { display: flex; gap: 10px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
 .search-wrap { position: relative; flex: 1; min-width: 200px; }
-.search-wrap input {
-  width: 100%; height: 38px; padding: 0 12px 0 38px;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  font-family: inherit; font-size: 13px; background: var(--surface);
-  transition: border-color .15s; outline: none;
-}
+.search-wrap input { width: 100%; height: 38px; padding: 0 12px 0 38px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 13px; background: var(--surface); transition: border-color .15s; outline: none; }
 .search-wrap input:focus { border-color: var(--accent); }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
 .result-count { font-size: 13px; color: var(--text-muted); }
-
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-.product-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  cursor: pointer;
-  transition: all .15s;
-}
+.product-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: all .15s; }
 .product-card:hover { border-color: #bbb; box-shadow: var(--shadow); transform: translateY(-2px); }
-.product-img {
-  height: 140px;
-  background: linear-gradient(135deg, #f5f4f1 0%, #ebe9e4 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 48px;
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-}
+.product-img { height: 140px; background: linear-gradient(135deg, #f5f4f1 0%, #ebe9e4 100%); display: flex; align-items: center; justify-content: center; font-size: 48px; border-bottom: 1px solid var(--border); overflow: hidden; }
 .product-img img { width:100%; height:100%; object-fit:cover; }
-.modal-img img { width:100%; height:100%; object-fit:cover; border-radius:var(--radius); }
 .product-body { padding: 14px; }
 .product-cat { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 0.5px; margin-bottom: 5px; }
 .product-name { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 8px; }
 .product-specs { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
-.origin-badge {
-  display: inline-block; margin-top: 8px;
-  padding: 2px 8px; border-radius: 3px;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
-}
+.origin-badge { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; }
 .origin-domestic { background: #e8f4e8; color: #2a7a2a; }
 .origin-import { background: #e8f0fa; color: #1a4fa0; }
-
 .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-.no-results-icon { font-size: 40px; margin-bottom: 12px; }
-.no-results p { font-size: 14px; }
 
-/* ── 상세 모달 ── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 200;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-}
-.modal {
-  background: var(--surface);
-  border-radius: 12px;
-  width: 100%; max-width: 640px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; background: var(--surface); z-index: 1;
-}
+/* 모달 */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal { background: var(--surface); border-radius: 12px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 1; }
 .modal-header h2 { font-size: 16px; font-weight: 600; }
 .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
 .modal-close:hover { background: var(--bg); }
 .modal-body { padding: 24px; }
-.modal-img { width: 100%; height: 200px; background: linear-gradient(135deg, #f5f4f1, #ebe9e4); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 80px; margin-bottom: 20px; border: 1px solid var(--border); }
+.modal-img { width: 100%; height: 220px; background: linear-gradient(135deg, #f5f4f1, #ebe9e4); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 80px; margin-bottom: 20px; border: 1px solid var(--border); overflow:hidden; }
+.modal-img img { width:100%; height:100%; object-fit:cover; }
 .modal-cat { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 8px; }
 .modal-name { font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
 .modal-desc { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 24px; }
@@ -236,37 +124,29 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 .spec-table td { padding: 10px 0; font-size: 13px; }
 .spec-table td:first-child { color: var(--text-muted); width: 35%; }
 .spec-table td:last-child { font-weight: 500; }
-.contact-bar {
-  background: var(--bg); border-radius: var(--radius);
-  padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
-  border: 1px solid var(--border);
-}
+.contact-bar { background: var(--bg); border-radius: var(--radius); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); }
 .contact-bar p { font-size: 13px; color: var(--text-muted); }
 .contact-bar strong { display: block; font-size: 15px; color: var(--text); margin-top: 2px; }
 
-/* ══ 회사 소개 ══ */
-#page-about { padding: 48px 32px; max-width: 800px; margin: 0 auto; }
-.about-hero { margin-bottom: 48px; }
+/* 회사소개 */
 .about-hero h2 { font-size: 28px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
 .about-hero h2 span { color: var(--accent); }
-.about-hero p { font-size: 15px; line-height: 1.8; color: #555; }
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
 .about-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-.about-card h3 { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 8px; letter-spacing: 0.5px; }
+.about-card h3 { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
 .about-card p { font-size: 13px; color: #555; line-height: 1.7; }
 .contact-info { background: var(--primary); color: #fff; border-radius: var(--radius); padding: 28px; }
 .contact-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 20px; }
 .contact-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; font-size: 13px; }
-.contact-row:last-child { margin-bottom: 0; }
 .contact-label { color: rgba(255,255,255,0.5); min-width: 50px; font-size: 12px; margin-top: 1px; }
 .contact-val { color: #fff; line-height: 1.6; }
 
-/* ══ 어드민 ══ */
+/* 어드민 */
 #page-admin { padding: 32px; }
 .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
 .admin-header h2 { font-size: 20px; font-weight: 700; }
 .admin-header p { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
-.admin-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.admin-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
 .admin-tab { padding: 10px 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: inherit; transition: all .15s; }
 .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 .admin-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -275,25 +155,18 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 .admin-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .admin-table tr:last-child td { border-bottom: none; }
 .admin-table tr:hover td { background: #fafaf9; }
-.td-icon { font-size: 22px; }
-.td-name { font-weight: 500; }
 .td-actions { display: flex; gap: 6px; white-space: nowrap; }
-
-/* 어드민 폼 모달 */
 .form-modal { background: var(--surface); border-radius: 12px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; }
 .form-body { padding: 24px; }
 .form-row { margin-bottom: 16px; }
 .form-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-.form-row input, .form-row select, .form-row textarea {
-  width: 100%; padding: 9px 12px;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  font-family: inherit; font-size: 13px; color: var(--text);
-  background: var(--surface); outline: none; transition: border-color .15s;
-}
+.form-row input, .form-row select, .form-row textarea { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 13px; color: var(--text); background: var(--surface); outline: none; transition: border-color .15s; }
 .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--accent); }
 .form-row textarea { height: 90px; resize: vertical; line-height: 1.6; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .form-btns { display: flex; gap: 8px; justify-content: flex-end; padding: 16px 24px; border-top: 1px solid var(--border); }
+.cat-manage-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.cat-manage-item:last-child { border-bottom: none; }
 
 /* 로그인 */
 #page-login { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 20px; }
@@ -302,15 +175,10 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 .login-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
 .login-error { background: #fdf0f2; border: 1px solid #f5c6cc; border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--accent); margin-bottom: 16px; }
 
-/* 카테고리 관리 */
-.cat-manage-list { }
-.cat-manage-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
-.cat-manage-item:last-child { border-bottom: none; }
-.cat-manage-icon { font-size: 22px; }
-.cat-manage-name { flex: 1; font-size: 13px; font-weight: 500; }
-.cat-manage-count { font-size: 12px; color: var(--text-muted); }
+/* 이미지 업로드 */
+.img-upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px; text-align: center; cursor: pointer; transition: border-color .15s; }
+.img-upload-area:hover { border-color: var(--accent); }
 
-/* 반응형 */
 @media (max-width: 600px) {
   .about-grid { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
@@ -324,10 +192,16 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 </head>
 <body>
 
+<!-- 로딩 -->
+<div id="loading-screen">
+  <div class="spin"></div>
+  <div style="font-size:14px;opacity:0.7">데이터 불러오는 중...</div>
+</div>
+
 <header>
   <div class="logo">
     <span class="logo-accent">▣</span>
-    <span id="company-name-header">우리 공구</span>
+    <span id="company-name-header">공구 카탈로그</span>
     <span class="logo-badge">B2B</span>
   </div>
   <nav>
@@ -338,13 +212,13 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
   </nav>
 </header>
 
-<!-- ══ 홈 ══ -->
+<!-- 홈 -->
 <div id="page-home" class="page">
   <div class="hero">
     <div class="hero-inner">
       <div class="hero-tag">B2B 공구 전문 카탈로그</div>
-      <h1>신뢰할 수 있는<br><span id="hero-company">우리 공구</span>의<br>제품을 만나보세요</h1>
-      <p id="hero-desc">철물, 흙손, 절삭공구 등 다양한 공구를 직접 제조하거나 수입하여 공급합니다. 우수한 품질과 합리적인 조건으로 거래처 여러분과 함께합니다.</p>
+      <h1>신뢰할 수 있는<br><span id="hero-company">공구 카탈로그</span>의<br>제품을 만나보세요</h1>
+      <p id="hero-desc">철물, 흙손, 절삭공구 등 다양한 공구를 직접 제조하거나 수입하여 공급합니다.</p>
       <div class="hero-btns">
         <button class="btn btn-primary" onclick="showPage('catalog')">제품 카탈로그 보기</button>
         <button class="btn btn-outline" onclick="showPage('about')">회사 소개</button>
@@ -363,7 +237,7 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
   </div>
 </div>
 
-<!-- ══ 카탈로그 ══ -->
+<!-- 카탈로그 -->
 <div id="page-catalog" class="page hidden">
   <div class="sidebar">
     <div class="sidebar-title">카테고리</div>
@@ -381,77 +255,52 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
   </div>
 </div>
 
-<!-- ══ 회사 소개 ══ -->
+<!-- 회사소개 -->
 <div id="page-about" class="page hidden">
-  <div style="padding: 48px 32px; max-width: 800px; margin: 0 auto;">
-    <div class="about-hero">
+  <div style="padding:48px 32px;max-width:800px;margin:0 auto">
+    <div class="about-hero" style="margin-bottom:40px">
       <h2>믿을 수 있는 공구,<br><span id="about-company">우리 공구</span>입니다</h2>
-      <p id="about-desc" style="margin-top:16px; font-size:15px; line-height:1.8; color:#555;">
-        저희는 철물, 흙손 등 전문 공구를 직접 제조하거나 엄선된 제품을 수입하여 B2B 거래처에 공급하고 있습니다. 오랜 경험과 검증된 품질로 여러분의 비즈니스를 지원합니다.
-      </p>
+      <p id="about-desc" style="margin-top:16px;font-size:15px;line-height:1.8;color:#555"></p>
     </div>
     <div class="about-grid">
-      <div class="about-card">
-        <h3>🏭 제조 · 수입</h3>
-        <p>직접 제조 및 해외 우수 제품 수입으로 폭넓은 제품군을 제공합니다.</p>
-      </div>
-      <div class="about-card">
-        <h3>✅ 품질 보증</h3>
-        <p>모든 제품은 엄격한 품질 기준을 통과한 제품만 공급합니다.</p>
-      </div>
-      <div class="about-card">
-        <h3>🤝 B2B 전문</h3>
-        <p>기업 거래처 전용으로 합리적인 조건과 안정적인 공급이 가능합니다.</p>
-      </div>
-      <div class="about-card">
-        <h3>📦 다양한 품목</h3>
-        <p>흙손류, 철물류, 절삭공구 등 16개 이상의 카테고리를 보유합니다.</p>
-      </div>
+      <div class="about-card"><h3>🏭 제조 · 수입</h3><p>직접 제조 및 해외 우수 제품 수입으로 폭넓은 제품군을 제공합니다.</p></div>
+      <div class="about-card"><h3>✅ 품질 보증</h3><p>엄격한 품질 기준을 통과한 제품만 공급합니다.</p></div>
+      <div class="about-card"><h3>🤝 B2B 전문</h3><p>기업 거래처 전용으로 합리적인 조건과 안정적인 공급이 가능합니다.</p></div>
+      <div class="about-card"><h3>📦 다양한 품목</h3><p>흙손류, 철물류, 절삭공구 등 다양한 카테고리를 보유합니다.</p></div>
     </div>
     <div class="contact-info">
       <h3>📞 문의하기</h3>
-      <div class="contact-row"><span class="contact-label">전화</span><span class="contact-val" id="about-tel">02-0000-0000</span></div>
-      <div class="contact-row"><span class="contact-label">이메일</span><span class="contact-val" id="about-email">contact@company.com</span></div>
-      <div class="contact-row"><span class="contact-label">주소</span><span class="contact-val" id="about-addr">서울특별시 OO구 OO로 00</span></div>
-      <div class="contact-row"><span class="contact-label">영업시간</span><span class="contact-val" id="about-hours">평일 09:00 ~ 18:00</span></div>
+      <div class="contact-row"><span class="contact-label">전화</span><span class="contact-val" id="about-tel"></span></div>
+      <div class="contact-row"><span class="contact-label">이메일</span><span class="contact-val" id="about-email"></span></div>
+      <div class="contact-row"><span class="contact-label">주소</span><span class="contact-val" id="about-addr"></span></div>
+      <div class="contact-row"><span class="contact-label">영업시간</span><span class="contact-val" id="about-hours"></span></div>
     </div>
   </div>
 </div>
 
-<!-- ══ 로그인 ══ -->
+<!-- 로그인 -->
 <div id="page-login" class="page hidden">
   <div class="login-card">
     <h2>어드민 로그인</h2>
     <p>관리자만 접근 가능한 페이지입니다</p>
     <div id="login-error" class="login-error hidden">아이디 또는 비밀번호가 올바르지 않습니다.</div>
-    <div class="form-row">
-      <label>아이디</label>
-      <input type="text" id="login-id" placeholder="admin">
-    </div>
-    <div class="form-row">
-      <label>비밀번호</label>
-      <input type="password" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
+    <div class="form-row"><label>아이디</label><input type="text" id="login-id" placeholder="admin"></div>
+    <div class="form-row"><label>비밀번호</label><input type="password" id="login-pw" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="doLogin()">로그인</button>
   </div>
 </div>
 
-<!-- ══ 어드민 ══ -->
+<!-- 어드민 -->
 <div id="page-admin" class="page hidden">
   <div class="admin-header">
-    <div>
-      <h2>관리자 대시보드</h2>
-      <p>제품과 카테고리를 관리하세요</p>
-    </div>
+    <div><h2>관리자 대시보드</h2><p>제품과 카테고리를 관리하세요</p></div>
     <button class="btn btn-outline btn-sm" onclick="doLogout()">로그아웃</button>
   </div>
   <div class="admin-tabs">
-    <button class="admin-tab active" onclick="switchAdminTab('products', this)">제품 관리 <span id="admin-prod-count"></span></button>
-    <button class="admin-tab" onclick="switchAdminTab('categories', this)">카테고리 관리</button>
-    <button class="admin-tab" onclick="switchAdminTab('settings', this)">사이트 설정</button>
+    <button class="admin-tab active" onclick="switchAdminTab('products',this)">제품 관리 <span id="admin-prod-count"></span></button>
+    <button class="admin-tab" onclick="switchAdminTab('categories',this)">카테고리 관리</button>
+    <button class="admin-tab" onclick="switchAdminTab('settings',this)">사이트 설정</button>
   </div>
-
-  <!-- 제품 관리 -->
   <div id="admin-products">
     <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
       <button class="btn btn-primary" onclick="openProductModal()">+ 제품 추가</button>
@@ -459,40 +308,29 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
     <div class="admin-table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th style="width:48px"></th>
-          <th>제품명</th>
-          <th>카테고리</th>
-          <th>규격</th>
-          <th>원산지</th>
-          <th style="width:120px">관리</th>
+          <th style="width:60px">사진</th><th>제품명</th><th>카테고리</th><th>규격</th><th>원산지</th><th style="width:120px">관리</th>
         </tr></thead>
         <tbody id="admin-prod-body"></tbody>
       </table>
     </div>
   </div>
-
-  <!-- 카테고리 관리 -->
   <div id="admin-categories" class="hidden">
     <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
       <button class="btn btn-primary" onclick="openCatModal()">+ 카테고리 추가</button>
     </div>
-    <div class="admin-table-wrap">
-      <div class="cat-manage-list" id="admin-cat-list"></div>
-    </div>
+    <div class="admin-table-wrap"><div id="admin-cat-list"></div></div>
   </div>
-
-  <!-- 사이트 설정 -->
   <div id="admin-settings" class="hidden">
     <div class="admin-table-wrap" style="padding:24px;max-width:500px">
       <h3 style="font-size:15px;font-weight:600;margin-bottom:20px">회사 정보 설정</h3>
-      <div class="form-row"><label>회사명</label><input type="text" id="set-company" placeholder="우리 공구"></div>
-      <div class="form-row"><label>전화번호</label><input type="text" id="set-tel" placeholder="02-0000-0000"></div>
-      <div class="form-row"><label>이메일</label><input type="text" id="set-email" placeholder="contact@company.com"></div>
-      <div class="form-row"><label>주소</label><input type="text" id="set-addr" placeholder="서울특별시 OO구 OO로 00"></div>
-      <div class="form-row"><label>영업시간</label><input type="text" id="set-hours" placeholder="평일 09:00 ~ 18:00"></div>
-      <div class="form-row"><label>회사 소개 문구</label><textarea id="set-desc" placeholder="회사 소개 내용을 입력하세요"></textarea></div>
-      <div class="form-row"><label>어드민 아이디 변경</label><input type="text" id="set-admin-id" placeholder="새 아이디"></div>
-      <div class="form-row"><label>어드민 비밀번호 변경</label><input type="password" id="set-admin-pw" placeholder="새 비밀번호"></div>
+      <div class="form-row"><label>회사명</label><input type="text" id="set-company"></div>
+      <div class="form-row"><label>전화번호</label><input type="text" id="set-tel"></div>
+      <div class="form-row"><label>이메일</label><input type="text" id="set-email"></div>
+      <div class="form-row"><label>주소</label><input type="text" id="set-addr"></div>
+      <div class="form-row"><label>영업시간</label><input type="text" id="set-hours"></div>
+      <div class="form-row"><label>회사 소개 문구</label><textarea id="set-desc"></textarea></div>
+      <div class="form-row"><label>어드민 아이디 변경</label><input type="text" id="set-admin-id" placeholder="변경할 경우만 입력"></div>
+      <div class="form-row"><label>어드민 비밀번호 변경</label><input type="password" id="set-admin-pw" placeholder="변경할 경우만 입력"></div>
       <button class="btn btn-primary" onclick="saveSettings()">저장</button>
       <div id="set-saved" class="hidden" style="margin-top:12px;font-size:13px;color:green">✅ 저장되었습니다</div>
     </div>
@@ -502,21 +340,15 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 <!-- 제품 상세 모달 -->
 <div id="detail-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeDetail()">
   <div class="modal">
-    <div class="modal-header">
-      <h2 id="detail-title">제품 상세</h2>
-      <button class="modal-close" onclick="closeDetail()">✕</button>
-    </div>
+    <div class="modal-header"><h2 id="detail-title"></h2><button class="modal-close" onclick="closeDetail()">✕</button></div>
     <div class="modal-body" id="detail-body"></div>
   </div>
 </div>
 
-<!-- 제품 추가/수정 폼 모달 -->
+<!-- 제품 추가/수정 모달 -->
 <div id="product-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeProductModal()">
   <div class="form-modal">
-    <div class="modal-header">
-      <h2 id="product-modal-title">제품 추가</h2>
-      <button class="modal-close" onclick="closeProductModal()">✕</button>
-    </div>
+    <div class="modal-header"><h2 id="product-modal-title">제품 추가</h2><button class="modal-close" onclick="closeProductModal()">✕</button></div>
     <div class="form-body">
       <div class="form-row"><label>제품명 *</label><input type="text" id="f-name" placeholder="예: 스테인리스 흙손 240mm"></div>
       <div class="form-grid">
@@ -535,7 +367,7 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
       <div class="form-row"><label>포장 단위</label><input type="text" id="f-unit" placeholder="예: 10개/box"></div>
       <div class="form-row">
         <label>제품 사진</label>
-        <div id="img-upload-area" style="border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:border-color .15s" onclick="document.getElementById('f-img-file').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleImgDrop(event)">
+        <div class="img-upload-area" id="img-upload-area" onclick="document.getElementById('f-img-file').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor=''" ondrop="handleImgDrop(event)">
           <div id="img-preview-wrap">
             <div style="font-size:32px;margin-bottom:8px">📷</div>
             <div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div>
@@ -558,10 +390,7 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
 <!-- 카테고리 추가 모달 -->
 <div id="cat-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeCatModal()">
   <div class="form-modal" style="max-width:400px">
-    <div class="modal-header">
-      <h2>카테고리 추가</h2>
-      <button class="modal-close" onclick="closeCatModal()">✕</button>
-    </div>
+    <div class="modal-header"><h2>카테고리 추가</h2><button class="modal-close" onclick="closeCatModal()">✕</button></div>
     <div class="form-body">
       <div class="form-row"><label>카테고리명 *</label><input type="text" id="cat-f-name" placeholder="예: 측정공구"></div>
       <div class="form-row"><label>아이콘 (이모지)</label><input type="text" id="cat-f-icon" placeholder="예: 📐" maxlength="4"></div>
@@ -573,119 +402,176 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
   </div>
 </div>
 
-<script>
-// ── 데이터 ──
-let data = {
-  company: { name:'우리 공구', tel:'02-0000-0000', email:'contact@company.com', addr:'서울특별시 OO구 OO로 00', hours:'평일 09:00 ~ 18:00', desc:'저희는 철물, 흙손 등 전문 공구를 직접 제조하거나 엄선된 제품을 수입하여 B2B 거래처에 공급하고 있습니다.' },
-  admin: { id:'admin', pw:'1234' },
-  categories: [
-    { id:1, name:'흙손류', icon:'🪛' },
-    { id:2, name:'철물류', icon:'🔩' },
-    { id:3, name:'절삭공구', icon:'⚙️' },
-    { id:4, name:'측정공구', icon:'📐' },
-    { id:5, name:'전동공구', icon:'🔨' },
-    { id:6, name:'수공구', icon:'🔧' },
-    { id:7, name:'안전용품', icon:'🛠️' },
-    { id:8, name:'도장용품', icon:'🪣' },
-  ],
-  products: [
-    { id:1, name:'스테인리스 흙손 240mm', catId:1, size:'240mm', material:'스테인리스', origin:'국산', unit:'10개/box', icon:'🪛', desc:'내부 미장 작업에 최적화된 고급 스테인리스 흙손. 열처리 강화로 내구성 우수.' },
-    { id:2, name:'각 흙손 180mm', catId:1, size:'180mm', material:'고탄소강', origin:'국산', unit:'10개/box', icon:'🪛', desc:'외벽 마감 모서리 처리용. 정밀 각도 유지.' },
-    { id:3, name:'아연도금 못', catId:2, size:'M6×50mm', material:'아연도금강', origin:'국산', unit:'500개/box', icon:'🔩', desc:'아연도금 처리로 부식 방지. 건식벽체 시공에 적합.' },
-    { id:4, name:'스테인리스 볼트 M8', catId:2, size:'M8×25mm', material:'SUS304', origin:'수입 (대만)', unit:'100개/box', icon:'🔩', desc:'SUS304 소재 고강도 볼트. 내식성 우수.' },
-    { id:5, name:'HSS 드릴비트 세트', catId:3, size:'1~13mm 세트', material:'고속도강', origin:'수입 (독일)', unit:'1세트', icon:'⚙️', desc:'13피스 드릴비트 세트. 금속·목재 겸용.' },
-    { id:6, name:'다이아몬드 절단석', catId:3, size:'105×20×2.2mm', material:'다이아몬드', origin:'수입 (일본)', unit:'1개', icon:'⚙️', desc:'콘크리트·타일 절단 전용. 건식/습식 겸용.' },
-    { id:7, name:'버니어 캘리퍼스 150mm', catId:4, size:'0-150mm', material:'스테인리스', origin:'수입 (일본)', unit:'1개', icon:'📐', desc:'0.02mm 정밀 측정. 내경·외경·깊이 측정 가능.' },
-    { id:8, name:'그라인더 4인치', catId:5, size:'100mm', material:'-', origin:'수입 (일본)', unit:'1대', icon:'🔨', desc:'850W 강력 모터. 분당 11,000회전.' },
-    { id:9, name:'방진 안전 장갑', catId:7, size:'M·L·XL', material:'나이트릴', origin:'국산', unit:'12켤레/box', icon:'🛠️', desc:'방진·내유성 코팅. 미끄럼 방지 그립.' },
-    { id:10, name:'롤러 브러시 세트', catId:8, size:'7인치', material:'나일론', origin:'국산', unit:'5개/box', icon:'🪣', desc:'내수성 도료 전용. 보풀 없는 마감.' },
-  ],
-  nextProdId: 11,
-  nextCatId: 9,
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCGhNiEgwrOpSuv8XWjS6rSRYMKV-02cqM",
+  authDomain: "tool-catalog-5d915.firebaseapp.com",
+  projectId: "tool-catalog-5d915",
+  storageBucket: "tool-catalog-5d915.firebasestorage.app",
+  messagingSenderId: "415855121121",
+  appId: "1:415855121121:web:af86ac2190af3096069da0"
 };
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ── 상태 ──
+let categories = [];
+let products = [];
+let settings = { name:'우리 공구', tel:'02-0000-0000', email:'contact@company.com', addr:'서울특별시 OO구 OO로 00', hours:'평일 09:00 ~ 18:00', desc:'철물, 흙손 등 전문 공구를 직접 제조하거나 수입하여 B2B 거래처에 공급합니다.', adminId:'admin', adminPw:'1234' };
 let loggedIn = false;
 let selectedCat = null;
 let editingProdId = null;
 
-// ── 로컬 스토리지 저장/불러오기 ──
-function save() { localStorage.setItem('toolcatalog', JSON.stringify(data)); }
-function load() {
-  const s = localStorage.getItem('toolcatalog');
-  if (s) { try { data = JSON.parse(s); } catch(e){} }
+// ── Firebase CRUD ──
+async function loadAll() {
+  // 설정
+  const settingSnap = await getDoc(doc(db, 'config', 'settings'));
+  if (settingSnap.exists()) settings = { ...settings, ...settingSnap.data() };
+
+  // 카테고리
+  const catSnap = await getDocs(collection(db, 'categories'));
+  categories = [];
+  catSnap.forEach(d => categories.push({ id: d.id, ...d.data() }));
+  if (categories.length === 0) {
+    // 초기 카테고리 생성
+    const defaults = [
+      { name:'흙손류', icon:'🪛', order:1 }, { name:'철물류', icon:'🔩', order:2 },
+      { name:'절삭공구', icon:'⚙️', order:3 }, { name:'측정공구', icon:'📐', order:4 },
+      { name:'전동공구', icon:'🔨', order:5 }, { name:'수공구', icon:'🔧', order:6 },
+      { name:'안전용품', icon:'🛠️', order:7 }, { name:'도장용품', icon:'🪣', order:8 },
+    ];
+    for (const c of defaults) {
+      const ref = await addDoc(collection(db, 'categories'), c);
+      categories.push({ id: ref.id, ...c });
+    }
+  }
+  categories.sort((a,b) => (a.order||0)-(b.order||0));
+
+  // 제품
+  const prodSnap = await getDocs(collection(db, 'products'));
+  products = [];
+  prodSnap.forEach(d => products.push({ id: d.id, ...d.data() }));
 }
-load();
+
+async function saveSettingsToDB(data) {
+  await setDoc(doc(db, 'config', 'settings'), data, { merge: true });
+}
+async function addProductToDB(data) {
+  const ref = await addDoc(collection(db, 'products'), data);
+  return ref.id;
+}
+async function updateProductToDB(id, data) {
+  await updateDoc(doc(db, 'products', id), data);
+}
+async function deleteProductToDB(id) {
+  await deleteDoc(doc(db, 'products', id));
+}
+async function addCategoryToDB(data) {
+  const ref = await addDoc(collection(db, 'categories'), data);
+  return ref.id;
+}
+async function deleteCategoryToDB(id) {
+  await deleteDoc(doc(db, 'categories', id));
+}
+
+// ── Cloudinary ──
+const CLOUD_NAME = 'dn1jg33s4';
+const UPLOAD_PRESET = 'tool-catalog';
+async function uploadToCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method:'POST', body:fd });
+  const json = await res.json();
+  return json.secure_url;
+}
+function handleImgSelect(e) { if (e.target.files[0]) uploadImg(e.target.files[0]); }
+function handleImgDrop(e) {
+  e.preventDefault();
+  document.getElementById('img-upload-area').style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) uploadImg(file);
+}
+async function uploadImg(file) {
+  document.getElementById('img-uploading').classList.remove('hidden');
+  document.getElementById('img-upload-area').style.pointerEvents = 'none';
+  try {
+    const url = await uploadToCloudinary(file);
+    document.getElementById('f-img-url').value = url;
+    document.getElementById('img-preview-wrap').innerHTML = `<img src="${url}" style="width:100%;height:120px;object-fit:cover;border-radius:6px"><div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 업로드 완료 · 다시 클릭하면 변경</div>`;
+  } catch(e) { alert('업로드 실패. 다시 시도해 주세요.'); }
+  document.getElementById('img-uploading').classList.add('hidden');
+  document.getElementById('img-upload-area').style.pointerEvents = 'auto';
+}
+window.handleImgSelect = handleImgSelect;
+window.handleImgDrop = handleImgDrop;
 
 // ── 페이지 전환 ──
-const pages = ['home','catalog','about','login','admin'];
-function showPage(id) {
+const PAGES = ['home','catalog','about','login','admin'];
+window.showPage = function(id) {
   if (id === 'admin' && !loggedIn) { showPage('login'); return; }
-  pages.forEach(p => document.getElementById('page-'+p).classList.add('hidden'));
+  PAGES.forEach(p => document.getElementById('page-'+p).classList.add('hidden'));
   document.getElementById('page-'+id).classList.remove('hidden');
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  const map = {home:0,catalog:1,about:2,login:3,admin:3};
-  if (map[id] !== undefined) document.querySelectorAll('nav button')[map[id]]?.classList.add('active');
+  const idx = {home:0,catalog:1,about:2,login:3,admin:3};
+  if (idx[id] !== undefined) document.querySelectorAll('nav button')[idx[id]]?.classList.add('active');
   if (id === 'home') renderHome();
   if (id === 'catalog') renderCatalog();
-  if (id === 'admin') renderAdmin();
   if (id === 'about') renderAbout();
-}
+  if (id === 'admin') renderAdmin();
+};
 
 // ── 홈 ──
 function renderHome() {
-  document.getElementById('stat-products').textContent = data.products.length;
-  document.getElementById('stat-cats').textContent = data.categories.length;
-  document.getElementById('hero-company').textContent = data.company.name;
-  document.getElementById('company-name-header').textContent = data.company.name;
-  const grid = document.getElementById('home-cat-grid');
-  grid.innerHTML = data.categories.map(c => {
-    const cnt = data.products.filter(p => p.catId === c.id).length;
-    return `<div class="cat-card" onclick="goToCat(${c.id})">
-      <div class="cat-icon">${c.icon}</div>
-      <div class="cat-info"><div class="cat-name">${c.name}</div><div class="cat-count">제품 ${cnt}개</div></div>
+  document.getElementById('stat-products').textContent = products.length;
+  document.getElementById('stat-cats').textContent = categories.length;
+  document.getElementById('hero-company').textContent = settings.name;
+  document.getElementById('company-name-header').textContent = settings.name;
+  document.getElementById('hero-desc').textContent = settings.desc;
+  document.getElementById('home-cat-grid').innerHTML = categories.map(c => {
+    const cnt = products.filter(p => p.catId === c.id).length;
+    return `<div class="cat-card" onclick="goToCat('${c.id}')">
+      <div class="cat-icon">${c.icon||'📦'}</div>
+      <div><div class="cat-name">${c.name}</div><div class="cat-count">제품 ${cnt}개</div></div>
     </div>`;
   }).join('');
 }
-function goToCat(id) { selectedCat = id; showPage('catalog'); }
+window.goToCat = function(id) { selectedCat = id; showPage('catalog'); };
 
 // ── 카탈로그 ──
 function renderCatalog() {
-  const sidebar = document.getElementById('sidebar-list');
-  sidebar.innerHTML = `<div class="sidebar-item ${selectedCat===null?'active':''}" onclick="filterCat(null)">
-    <span>전체</span><span class="sidebar-count">${data.products.length}</span></div>`;
-  sidebar.innerHTML += data.categories.map(c => {
-    const cnt = data.products.filter(p => p.catId === c.id).length;
-    return `<div class="sidebar-item ${selectedCat===c.id?'active':''}" onclick="filterCat(${c.id})">
-      <span>${c.icon} ${c.name}</span><span class="sidebar-count">${cnt}</span></div>`;
-  }).join('');
+  document.getElementById('sidebar-list').innerHTML =
+    `<div class="sidebar-item ${selectedCat===null?'active':''}" onclick="filterCat(null)"><span>전체</span><span class="sidebar-count">${products.length}</span></div>` +
+    categories.map(c => {
+      const cnt = products.filter(p => p.catId === c.id).length;
+      return `<div class="sidebar-item ${selectedCat===c.id?'active':''}" onclick="filterCat('${c.id}')"><span>${c.icon||''} ${c.name}</span><span class="sidebar-count">${cnt}</span></div>`;
+    }).join('');
   renderProducts();
 }
-function filterCat(id) { selectedCat = id; renderCatalog(); }
+window.filterCat = function(id) { selectedCat = id; renderCatalog(); };
 function renderProducts() {
-  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
-  let list = data.products;
+  const q = (document.getElementById('search-input')?.value||'').toLowerCase();
+  let list = products;
   if (selectedCat) list = list.filter(p => p.catId === selectedCat);
-  if (q) list = list.filter(p =>
-    p.name.toLowerCase().includes(q) ||
-    (p.size||'').toLowerCase().includes(q) ||
-    (p.material||'').toLowerCase().includes(q)
-  );
+  if (q) list = list.filter(p => (p.name||'').toLowerCase().includes(q)||(p.size||'').toLowerCase().includes(q)||(p.material||'').toLowerCase().includes(q));
   document.getElementById('result-count').textContent = `${list.length}개 제품`;
   const grid = document.getElementById('product-grid');
-  if (!list.length) {
-    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1">
-      <div class="no-results-icon">🔍</div><p>검색 결과가 없습니다</p></div>`;
-    return;
-  }
+  if (!list.length) { grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><div style="font-size:40px;margin-bottom:12px">🔍</div><p>검색 결과가 없습니다</p></div>`; return; }
   grid.innerHTML = list.map(p => {
-    const cat = data.categories.find(c => c.id === p.catId);
+    const cat = categories.find(c => c.id === p.catId);
     const isKr = (p.origin||'').startsWith('국산');
-    return `<div class="product-card" onclick="openDetail(${p.id})">
-      <div class="product-img">${p.imgUrl ? '<img src="'+p.imgUrl+'" alt="'+p.name+'">' : (p.icon||'📦')}</div>
+    const imgHtml = p.imgUrl ? `<img src="${p.imgUrl}" alt="${p.name}">` : (p.icon||'📦');
+    return `<div class="product-card" onclick="openDetail('${p.id}')">
+      <div class="product-img">${imgHtml}</div>
       <div class="product-body">
         <div class="product-cat">${cat?.name||''}</div>
         <div class="product-name">${p.name}</div>
-        <div class="product-specs">${p.size?'규격: '+p.size+'<br>':''} ${p.material?'재질: '+p.material:''}</div>
+        <div class="product-specs">${p.size?'규격: '+p.size+'<br>':''}${p.material?'재질: '+p.material:''}</div>
         <span class="origin-badge ${isKr?'origin-domestic':'origin-import'}">${p.origin||''}</span>
       </div>
     </div>`;
@@ -693,14 +579,15 @@ function renderProducts() {
 }
 
 // ── 상세 ──
-function openDetail(id) {
-  const p = data.products.find(x => x.id === id);
+window.openDetail = function(id) {
+  const p = products.find(x => x.id === id);
   if (!p) return;
-  const cat = data.categories.find(c => c.id === p.catId);
+  const cat = categories.find(c => c.id === p.catId);
   const isKr = (p.origin||'').startsWith('국산');
+  const imgHtml = p.imgUrl ? `<img src="${p.imgUrl}" alt="${p.name}">` : (p.icon||'📦');
   document.getElementById('detail-title').textContent = p.name;
   document.getElementById('detail-body').innerHTML = `
-    <div class="modal-img">${p.imgUrl ? '<img src="'+p.imgUrl+'" alt="'+p.name+'">' : (p.icon||'📦')}</div>
+    <div class="modal-img">${imgHtml}</div>
     <div class="modal-cat">${cat?.name||''}</div>
     <div class="modal-name">${p.name}</div>
     ${p.desc?`<div class="modal-desc">${p.desc}</div>`:''}
@@ -711,215 +598,187 @@ function openDetail(id) {
       <tr><td>포장 단위</td><td>${p.unit||'-'}</td></tr>
     </table>
     <div class="contact-bar">
-      <div><p>제품 문의 및 견적</p><strong>${data.company.tel}</strong></div>
-      <div style="font-size:13px;color:var(--text-muted)">${data.company.email}</div>
+      <div><p>제품 문의 및 견적</p><strong>${settings.tel}</strong></div>
+      <div style="font-size:13px;color:var(--text-muted)">${settings.email}</div>
     </div>`;
   document.getElementById('detail-modal').classList.remove('hidden');
-}
-function closeDetail() { document.getElementById('detail-modal').classList.add('hidden'); }
+};
+window.closeDetail = function() { document.getElementById('detail-modal').classList.add('hidden'); };
 
-// ── 회사 소개 ──
+// ── 회사소개 ──
 function renderAbout() {
-  document.getElementById('about-company').textContent = data.company.name;
-  document.getElementById('about-desc').textContent = data.company.desc;
-  document.getElementById('about-tel').textContent = data.company.tel;
-  document.getElementById('about-email').textContent = data.company.email;
-  document.getElementById('about-addr').textContent = data.company.addr;
-  document.getElementById('about-hours').textContent = data.company.hours;
+  document.getElementById('about-company').textContent = settings.name;
+  document.getElementById('about-desc').textContent = settings.desc;
+  document.getElementById('about-tel').textContent = settings.tel;
+  document.getElementById('about-email').textContent = settings.email;
+  document.getElementById('about-addr').textContent = settings.addr;
+  document.getElementById('about-hours').textContent = settings.hours;
 }
 
 // ── 로그인 ──
-function doLogin() {
+window.doLogin = function() {
   const id = document.getElementById('login-id').value;
   const pw = document.getElementById('login-pw').value;
-  if (id === data.admin.id && pw === data.admin.pw) {
+  if (id === settings.adminId && pw === settings.adminPw) {
     loggedIn = true;
     document.getElementById('login-error').classList.add('hidden');
     showPage('admin');
   } else {
     document.getElementById('login-error').classList.remove('hidden');
   }
-}
-function doLogout() { loggedIn = false; showPage('home'); }
+};
+window.doLogout = function() { loggedIn = false; showPage('home'); };
 
 // ── 어드민 ──
 function renderAdmin() {
-  document.getElementById('admin-prod-count').textContent = `(${data.products.length})`;
+  document.getElementById('admin-prod-count').textContent = `(${products.length})`;
   renderAdminProds();
   renderAdminCats();
-  const s = data.company;
-  document.getElementById('set-company').value = s.name;
-  document.getElementById('set-tel').value = s.tel;
-  document.getElementById('set-email').value = s.email;
-  document.getElementById('set-addr').value = s.addr;
-  document.getElementById('set-hours').value = s.hours;
-  document.getElementById('set-desc').value = s.desc;
+  document.getElementById('set-company').value = settings.name;
+  document.getElementById('set-tel').value = settings.tel;
+  document.getElementById('set-email').value = settings.email;
+  document.getElementById('set-addr').value = settings.addr;
+  document.getElementById('set-hours').value = settings.hours;
+  document.getElementById('set-desc').value = settings.desc;
 }
-function switchAdminTab(tab, el) {
+window.switchAdminTab = function(tab, el) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['products','categories','settings'].forEach(t =>
-    document.getElementById('admin-'+t).classList.toggle('hidden', t !== tab));
-}
+  ['products','categories','settings'].forEach(t => document.getElementById('admin-'+t).classList.toggle('hidden', t!==tab));
+};
 function renderAdminProds() {
-  document.getElementById('admin-prod-body').innerHTML = data.products.map(p => {
-    const cat = data.categories.find(c => c.id === p.catId);
+  document.getElementById('admin-prod-body').innerHTML = products.map(p => {
+    const cat = categories.find(c => c.id === p.catId);
+    const imgHtml = p.imgUrl ? `<img src="${p.imgUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:4px">` : (p.icon||'📦');
     return `<tr>
-      <td class="td-icon">${p.imgUrl ? '<img src="'+p.imgUrl+'" style="width:36px;height:36px;object-fit:cover;border-radius:4px">' : (p.icon||'📦')}</td>
-      <td class="td-name">${p.name}</td>
+      <td style="font-size:22px">${imgHtml}</td>
+      <td style="font-weight:500">${p.name}</td>
       <td>${cat?.name||'-'}</td>
       <td>${p.size||'-'}</td>
       <td>${p.origin||'-'}</td>
       <td><div class="td-actions">
-        <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">수정</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">삭제</button>
+        <button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">수정</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>
       </div></td>
     </tr>`;
   }).join('');
 }
 function renderAdminCats() {
-  document.getElementById('admin-cat-list').innerHTML = data.categories.map(c => {
-    const cnt = data.products.filter(p => p.catId === c.id).length;
+  document.getElementById('admin-cat-list').innerHTML = categories.map(c => {
+    const cnt = products.filter(p => p.catId === c.id).length;
     return `<div class="cat-manage-item">
-      <div class="cat-manage-icon">${c.icon}</div>
-      <div class="cat-manage-name">${c.name}</div>
-      <div class="cat-manage-count">제품 ${cnt}개</div>
-      <div class="td-actions">
-        <button class="btn btn-danger btn-sm" onclick="deleteCat(${c.id})">삭제</button>
-      </div>
+      <div style="font-size:22px">${c.icon||'📦'}</div>
+      <div style="flex:1;font-size:13px;font-weight:500">${c.name}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${cnt}개</div>
+      <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">삭제</button>
     </div>`;
   }).join('');
 }
 
 // ── 제품 CRUD ──
-function openProductModal(id) {
+window.openProductModal = function(id) {
   editingProdId = id || null;
   document.getElementById('product-modal-title').textContent = id ? '제품 수정' : '제품 추가';
-  const sel = document.getElementById('f-cat');
-  sel.innerHTML = data.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('f-cat').innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   if (id) {
-    const p = data.products.find(x => x.id === id);
+    const p = products.find(x => x.id === id);
     document.getElementById('f-name').value = p.name;
     document.getElementById('f-cat').value = p.catId;
-    document.getElementById('f-origin').value = p.origin || '국산';
-    document.getElementById('f-size').value = p.size || '';
-    document.getElementById('f-material').value = p.material || '';
-    document.getElementById('f-unit').value = p.unit || '';
-    document.getElementById('f-img-url').value = p.imgUrl || '';
-    if (p.imgUrl) {
-      document.getElementById('img-preview-wrap').innerHTML = '<img src="'+p.imgUrl+'" style="width:100%;height:120px;object-fit:cover;border-radius:6px"><div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 기존 사진 · 다시 클릭하면 변경</div>';
-    } else {
-      document.getElementById('img-preview-wrap').innerHTML = '<div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP 지원</div>';
-    }
-    document.getElementById('f-desc').value = p.desc || '';
+    document.getElementById('f-origin').value = p.origin||'국산';
+    document.getElementById('f-size').value = p.size||'';
+    document.getElementById('f-material').value = p.material||'';
+    document.getElementById('f-unit').value = p.unit||'';
+    document.getElementById('f-img-url').value = p.imgUrl||'';
+    document.getElementById('f-desc').value = p.desc||'';
+    document.getElementById('img-preview-wrap').innerHTML = p.imgUrl
+      ? `<img src="${p.imgUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:6px"><div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 기존 사진 · 다시 클릭하면 변경</div>`
+      : `<div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div>`;
   } else {
-    ['f-name','f-size','f-material','f-unit','f-desc'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('f-img-url').value = '';
-    document.getElementById('img-preview-wrap').innerHTML = '<div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP 지원</div>';
+    ['f-name','f-size','f-material','f-unit','f-img-url','f-desc'].forEach(i => document.getElementById(i).value='');
+    document.getElementById('img-preview-wrap').innerHTML = `<div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP 지원</div>`;
   }
   document.getElementById('product-modal').classList.remove('hidden');
-}
-function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
-function editProduct(id) { openProductModal(id); }
-function deleteProduct(id) {
+};
+window.closeProductModal = function() { document.getElementById('product-modal').classList.add('hidden'); };
+window.editProduct = function(id) { openProductModal(id); };
+window.deleteProduct = async function(id) {
   if (!confirm('이 제품을 삭제할까요?')) return;
-  data.products = data.products.filter(p => p.id !== id);
-  save(); renderAdminProds();
-  document.getElementById('admin-prod-count').textContent = `(${data.products.length})`;
-}
-function saveProduct() {
+  await deleteProductToDB(id);
+  products = products.filter(p => p.id !== id);
+  renderAdminProds();
+  document.getElementById('admin-prod-count').textContent = `(${products.length})`;
+};
+window.saveProduct = async function() {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('제품명을 입력해 주세요'); return; }
   const obj = {
-    id: editingProdId || data.nextProdId++,
     name,
-    catId: parseInt(document.getElementById('f-cat').value),
+    catId: document.getElementById('f-cat').value,
     origin: document.getElementById('f-origin').value,
     size: document.getElementById('f-size').value.trim(),
     material: document.getElementById('f-material').value.trim(),
     unit: document.getElementById('f-unit').value.trim(),
-    imgUrl: document.getElementById('f-img-url').value || '',
+    imgUrl: document.getElementById('f-img-url').value||'',
     icon: '📦',
     desc: document.getElementById('f-desc').value.trim(),
   };
-  if (editingProdId) { data.products = data.products.map(p => p.id === editingProdId ? obj : p); }
-  else { data.products.push(obj); }
-  save(); closeProductModal(); renderAdminProds();
-  document.getElementById('admin-prod-count').textContent = `(${data.products.length})`;
-}
+  if (editingProdId) {
+    await updateProductToDB(editingProdId, obj);
+    products = products.map(p => p.id === editingProdId ? { id:editingProdId, ...obj } : p);
+  } else {
+    const newId = await addProductToDB(obj);
+    products.push({ id:newId, ...obj });
+  }
+  closeProductModal(); renderAdminProds();
+  document.getElementById('admin-prod-count').textContent = `(${products.length})`;
+};
 
 // ── 카테고리 CRUD ──
-function openCatModal() { document.getElementById('cat-f-name').value=''; document.getElementById('cat-f-icon').value=''; document.getElementById('cat-modal').classList.remove('hidden'); }
-function closeCatModal() { document.getElementById('cat-modal').classList.add('hidden'); }
-function saveCat() {
+window.openCatModal = function() {
+  document.getElementById('cat-f-name').value='';
+  document.getElementById('cat-f-icon').value='';
+  document.getElementById('cat-modal').classList.remove('hidden');
+};
+window.closeCatModal = function() { document.getElementById('cat-modal').classList.add('hidden'); };
+window.saveCat = async function() {
   const name = document.getElementById('cat-f-name').value.trim();
   if (!name) { alert('카테고리명을 입력해 주세요'); return; }
-  data.categories.push({ id: data.nextCatId++, name, icon: document.getElementById('cat-f-icon').value.trim() || '📦' });
-  save(); closeCatModal(); renderAdminCats();
-}
-function deleteCat(id) {
-  const cnt = data.products.filter(p => p.catId === id).length;
-  if (cnt > 0) { alert(`이 카테고리에 제품 ${cnt}개가 있어 삭제할 수 없습니다.\n먼저 제품을 삭제하거나 다른 카테고리로 옮겨주세요.`); return; }
+  const obj = { name, icon: document.getElementById('cat-f-icon').value.trim()||'📦', order: categories.length+1 };
+  const newId = await addCategoryToDB(obj);
+  categories.push({ id:newId, ...obj });
+  closeCatModal(); renderAdminCats();
+};
+window.deleteCat = async function(id) {
+  const cnt = products.filter(p => p.catId === id).length;
+  if (cnt > 0) { alert(`이 카테고리에 제품 ${cnt}개가 있어 삭제할 수 없습니다.`); return; }
   if (!confirm('이 카테고리를 삭제할까요?')) return;
-  data.categories = data.categories.filter(c => c.id !== id);
-  save(); renderAdminCats();
-}
+  await deleteCategoryToDB(id);
+  categories = categories.filter(c => c.id !== id);
+  renderAdminCats();
+};
 
 // ── 설정 저장 ──
-function saveSettings() {
-  data.company.name = document.getElementById('set-company').value.trim() || data.company.name;
-  data.company.tel = document.getElementById('set-tel').value.trim();
-  data.company.email = document.getElementById('set-email').value.trim();
-  data.company.addr = document.getElementById('set-addr').value.trim();
-  data.company.hours = document.getElementById('set-hours').value.trim();
-  data.company.desc = document.getElementById('set-desc').value.trim();
+window.saveSettings = async function() {
+  settings.name = document.getElementById('set-company').value.trim()||settings.name;
+  settings.tel = document.getElementById('set-tel').value.trim();
+  settings.email = document.getElementById('set-email').value.trim();
+  settings.addr = document.getElementById('set-addr').value.trim();
+  settings.hours = document.getElementById('set-hours').value.trim();
+  settings.desc = document.getElementById('set-desc').value.trim();
   const newId = document.getElementById('set-admin-id').value.trim();
   const newPw = document.getElementById('set-admin-pw').value.trim();
-  if (newId) data.admin.id = newId;
-  if (newPw) data.admin.pw = newPw;
-  document.getElementById('company-name-header').textContent = data.company.name;
-  save();
+  if (newId) settings.adminId = newId;
+  if (newPw) settings.adminPw = newPw;
+  await saveSettingsToDB(settings);
+  document.getElementById('company-name-header').textContent = settings.name;
   const msg = document.getElementById('set-saved');
   msg.classList.remove('hidden');
-  setTimeout(() => msg.classList.add('hidden'), 2500);
-}
+  setTimeout(()=>msg.classList.add('hidden'), 2500);
+};
 
-// ── Cloudinary 이미지 업로드 ──
-const CLOUD_NAME = 'dn1jg33s4';
-const UPLOAD_PRESET = 'tool-catalog';
-
-async function uploadToCloudinary(file) {
-  const fd = new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', UPLOAD_PRESET);
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method:'POST', body:fd });
-  const json = await res.json();
-  return json.secure_url;
-}
-
-function handleImgSelect(e) { if (e.target.files[0]) uploadImg(e.target.files[0]); }
-function handleImgDrop(e) {
-  e.preventDefault();
-  document.getElementById('img-upload-area').style.borderColor = 'var(--border)';
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) uploadImg(file);
-}
-
-async function uploadImg(file) {
-  document.getElementById('img-uploading').classList.remove('hidden');
-  document.getElementById('img-upload-area').style.pointerEvents = 'none';
-  try {
-    const url = await uploadToCloudinary(file);
-    document.getElementById('f-img-url').value = url;
-    document.getElementById('img-preview-wrap').innerHTML = `<img src="${url}" style="width:100%;height:120px;object-fit:cover;border-radius:6px"><div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 업로드 완료 · 다시 클릭하면 변경</div>`;
-  } catch(err) {
-    alert('업로드 실패. 다시 시도해 주세요.');
-  }
-  document.getElementById('img-uploading').classList.add('hidden');
-  document.getElementById('img-upload-area').style.pointerEvents = 'auto';
-}
-
-// ── 초기화 ──
+// ── 초기 로드 ──
+await loadAll();
+document.getElementById('loading-screen').style.display = 'none';
 renderHome();
 </script>
 </body>
