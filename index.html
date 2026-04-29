@@ -616,10 +616,10 @@ function renderHome() {
   document.getElementById('stat-cats').textContent = categories.length;
   document.getElementById('hero-company').textContent = settings.name;
   document.getElementById('company-name-header').textContent = settings.name;
-  document.getElementById('home-tel').textContent = settings.tel;
-  document.getElementById('home-email').textContent = settings.email;
-  document.getElementById('home-addr').textContent = settings.addr;
-  document.getElementById('home-hours').textContent = settings.hours;
+  const _tel = document.getElementById('home-tel'); if(_tel) _tel.textContent = settings.tel;
+  const _email = document.getElementById('home-email'); if(_email) _email.textContent = settings.email;
+  const _addr = document.getElementById('home-addr'); if(_addr) _addr.textContent = settings.addr;
+  const _hours = document.getElementById('home-hours'); if(_hours) _hours.textContent = settings.hours;
   document.getElementById('home-cat-grid').innerHTML = categories.map(c => {
     const cnt = products.filter(p => p.catId === c.id).length;
     return `<div class="cat-card" onclick="goToCat('${c.id}')">
@@ -884,10 +884,10 @@ window.saveSettings = async function() {
   await saveSettingsToDB(settings);
   document.getElementById('company-name-header').textContent = settings.name;
   // 홈 화면 연락처도 즉시 반영
-  document.getElementById('home-tel').textContent = settings.tel;
-  document.getElementById('home-email').textContent = settings.email;
-  document.getElementById('home-addr').textContent = settings.addr;
-  document.getElementById('home-hours').textContent = settings.hours;
+  const _tel = document.getElementById('home-tel'); if(_tel) _tel.textContent = settings.tel;
+  const _email = document.getElementById('home-email'); if(_email) _email.textContent = settings.email;
+  const _addr = document.getElementById('home-addr'); if(_addr) _addr.textContent = settings.addr;
+  const _hours = document.getElementById('home-hours'); if(_hours) _hours.textContent = settings.hours;
   document.getElementById('hero-company').textContent = settings.name;
   const msg = document.getElementById('set-saved');
   msg.classList.remove('hidden');
@@ -897,6 +897,17 @@ window.saveSettings = async function() {
 // ── 초기 로드 ──
 await loadAll();
 document.getElementById('loading-screen').style.display = 'none';
+
+// 연락처 직접 DOM 업데이트 (renderHome 전에 확실히 반영)
+const telEl = document.getElementById('home-tel');
+const emailEl = document.getElementById('home-email');
+const addrEl = document.getElementById('home-addr');
+const hoursEl = document.getElementById('home-hours');
+if (telEl) telEl.textContent = settings.tel;
+if (emailEl) emailEl.textContent = settings.email;
+if (addrEl) addrEl.textContent = settings.addr;
+if (hoursEl) hoursEl.textContent = settings.hours;
+
 renderHome();
 </script>
 </body>
