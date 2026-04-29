@@ -212,6 +212,18 @@ nav button:hover, nav button.active { background: #f0f0f0; color: #1a1a1a; }
 nav button.catalog-nav-btn { background: #fff8e0 !important; color: #b8860b !important; border: 1px solid #f5c000 !important; font-weight: 600; }
 nav button.catalog-nav-btn:hover { background: #fff3c0 !important; color: #996600 !important; }
 nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a1a !important; }
+
+.home-contact-box {
+  background: #ffffff;
+  border: 1.5px solid #1a1a1a;
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  max-width: 480px;
+}
+.home-contact-box h3 { font-size: 15px; font-weight: 600; margin-bottom: 20px; color: #1a1a1a; }
+.home-contact-row { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px; font-size: 13px; }
+.home-contact-row:last-child { margin-bottom: 0; }
+.home-contact-label { color: #888; min-width: 52px; font-size: 12px; padding-top: 1px; }
 </style>
 </head>
 <body>
@@ -260,6 +272,17 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
   <div class="home-cats">
     <div class="section-title">제품 카테고리</div>
     <div class="cat-grid" id="home-cat-grid"></div>
+  </div>
+
+  <!-- 홈 문의하기 박스 -->
+  <div style="padding: 0 16px 40px;">
+    <div class="home-contact-box">
+      <h3>📞 문의하기</h3>
+      <div class="home-contact-row"><span class="home-contact-label">전화</span><span id="home-tel"></span></div>
+      <div class="home-contact-row"><span class="home-contact-label">이메일</span><span id="home-email"></span></div>
+      <div class="home-contact-row"><span class="home-contact-label">주소</span><span id="home-addr"></span></div>
+      <div class="home-contact-row"><span class="home-contact-label">영업시간</span><span id="home-hours"></span></div>
+    </div>
   </div>
 </div>
 
@@ -586,6 +609,10 @@ function renderHome() {
   document.getElementById('hero-company').textContent = settings.name;
   document.getElementById('company-name-header').textContent = settings.name;
   document.getElementById('hero-desc').textContent = settings.desc;
+  document.getElementById('home-tel').textContent = settings.tel;
+  document.getElementById('home-email').textContent = settings.email;
+  document.getElementById('home-addr').textContent = settings.addr;
+  document.getElementById('home-hours').textContent = settings.hours;
   document.getElementById('home-cat-grid').innerHTML = categories.map(c => {
     const cnt = products.filter(p => p.catId === c.id).length;
     return `<div class="cat-card" onclick="goToCat('${c.id}')">
