@@ -883,6 +883,12 @@ window.saveSettings = async function() {
   if (newPw) settings.adminPw = newPw;
   await saveSettingsToDB(settings);
   document.getElementById('company-name-header').textContent = settings.name;
+  // 홈 화면 연락처도 즉시 반영
+  document.getElementById('home-tel').textContent = settings.tel;
+  document.getElementById('home-email').textContent = settings.email;
+  document.getElementById('home-addr').textContent = settings.addr;
+  document.getElementById('home-hours').textContent = settings.hours;
+  document.getElementById('hero-company').textContent = settings.name;
   const msg = document.getElementById('set-saved');
   msg.classList.remove('hidden');
   setTimeout(()=>msg.classList.add('hidden'), 2500);
