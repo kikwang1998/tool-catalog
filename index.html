@@ -205,7 +205,7 @@ nav button:hover, nav button.active { background: #f0f0f0; color: #1a1a1a; }
 .thumb-item img { width:100%; height:100%; object-fit:cover; }
 .thumb-del { position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
 
-.hero-logo-wrap { position:absolute; top:5%; right:3%; width:30%; max-width:280px; z-index:2; }
+.hero-logo-wrap { position:absolute; top:5%; right:3%; width:28%; max-width:260px; z-index:2; display:flex; flex-direction:column; gap:12px; }
 .hero-logo-img { width:100%; height:auto; object-fit:contain; }
 @media (max-width:700px) { .hero-logo-wrap { display:none; } }
 
@@ -224,6 +224,17 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
 .home-contact-row { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 12px; font-size: 13px; }
 .home-contact-row:last-child { margin-bottom: 0; }
 .home-contact-label { color: #888; min-width: 52px; font-size: 12px; padding-top: 1px; }
+
+.hero-contact-box {
+  background: #ffffff;
+  border: 1.5px solid #1a1a1a;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  width: 100%;
+}
+.hero-contact-row { display:flex; gap:8px; align-items:flex-start; margin-bottom:8px; font-size:12px; color:#1a1a1a; }
+.hero-contact-row:last-child { margin-bottom:0; }
+.hero-contact-row .home-contact-label { color:#555; min-width:52px; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -253,7 +264,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     <div class="hero-inner">
       <div class="hero-tag">B2B 공구 전문 카탈로그</div>
       <h1>신뢰할 수 있는<br><span id="hero-company">공구 카탈로그</span>의<br>제품을 만나보세요</h1>
-      <p id="hero-desc">철물, 흙손, 절삭공구 등 다양한 공구를 직접 제조하거나 수입하여 공급합니다.</p>
+
       <div class="hero-btns">
         <button class="btn btn-primary" onclick="showPage('catalog')">제품 카탈로그 보기</button>
         <button class="btn btn-outline" onclick="showPage('about')">회사 소개</button>
@@ -261,6 +272,12 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     </div>
     <div class="hero-logo-wrap">
       <img src="https://res.cloudinary.com/dn1jg33s4/image/upload/v1777443925/%EC%A0%9C%EB%AA%A9_%EC%97%86%EC%9D%8C_yxwkuv.png" alt="기광산업 로고" class="hero-logo-img">
+      <div class="hero-contact-box">
+        <div class="hero-contact-row"><span class="home-contact-label">📞 전화</span><span id="home-tel"></span></div>
+        <div class="hero-contact-row"><span class="home-contact-label">✉️ 이메일</span><span id="home-email"></span></div>
+        <div class="hero-contact-row"><span class="home-contact-label">📍 주소</span><span id="home-addr"></span></div>
+        <div class="hero-contact-row"><span class="home-contact-label">🕐 영업</span><span id="home-hours"></span></div>
+      </div>
     </div>
   </div>
   <div class="stats-bar">
@@ -274,16 +291,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     <div class="cat-grid" id="home-cat-grid"></div>
   </div>
 
-  <!-- 홈 문의하기 박스 -->
-  <div style="padding: 0 16px 40px;">
-    <div class="home-contact-box">
-      <h3>📞 문의하기</h3>
-      <div class="home-contact-row"><span class="home-contact-label">전화</span><span id="home-tel"></span></div>
-      <div class="home-contact-row"><span class="home-contact-label">이메일</span><span id="home-email"></span></div>
-      <div class="home-contact-row"><span class="home-contact-label">주소</span><span id="home-addr"></span></div>
-      <div class="home-contact-row"><span class="home-contact-label">영업시간</span><span id="home-hours"></span></div>
-    </div>
-  </div>
+
 </div>
 
 <!-- 카탈로그 -->
@@ -608,7 +616,6 @@ function renderHome() {
   document.getElementById('stat-cats').textContent = categories.length;
   document.getElementById('hero-company').textContent = settings.name;
   document.getElementById('company-name-header').textContent = settings.name;
-  document.getElementById('hero-desc').textContent = settings.desc;
   document.getElementById('home-tel').textContent = settings.tel;
   document.getElementById('home-email').textContent = settings.email;
   document.getElementById('home-addr').textContent = settings.addr;
