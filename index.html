@@ -188,6 +188,22 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
   .sidebar { display: none; }
   .catalog-main { padding: 20px 16px; }
 }
+
+/* 슬라이더 */
+.slider-wrap { position:relative; width:100%; background:#f0ede8; border-radius:var(--radius); margin-bottom:20px; border:1px solid var(--border); overflow:hidden; }
+.slider-track { display:flex; transition:transform .3s ease; }
+.slider-track img { min-width:100%; width:100%; height:auto; max-height:480px; object-fit:contain; display:block; }
+.slider-btn { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.45); color:#fff; border:none; border-radius:50%; width:36px; height:36px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2; transition:background .15s; }
+.slider-btn:hover { background:rgba(0,0,0,0.7); }
+.slider-prev { left:10px; }
+.slider-next { right:10px; }
+.slider-dots { display:flex; justify-content:center; gap:6px; padding:10px 0 14px; }
+.slider-dot { width:7px; height:7px; border-radius:50%; background:var(--border); border:none; cursor:pointer; transition:background .15s; padding:0; }
+.slider-dot.active { background:var(--accent); }
+/* 미리보기 썸네일 */
+.thumb-item { position:relative; width:80px; height:80px; border-radius:6px; overflow:hidden; border:1px solid var(--border); flex-shrink:0; }
+.thumb-item img { width:100%; height:100%; object-fit:cover; }
+.thumb-del { position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); color:#fff; border:none; border-radius:50%; width:18px; height:18px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
 </style>
 </head>
 <body>
@@ -366,17 +382,15 @@ nav button:hover, nav button.active { background: rgba(255,255,255,0.1); color: 
       </div>
       <div class="form-row"><label>포장 단위</label><input type="text" id="f-unit" placeholder="예: 10개/box"></div>
       <div class="form-row">
-        <label>제품 사진</label>
+        <label>제품 사진 <span style="font-weight:400;color:var(--text-muted)">(최대 5장)</span></label>
+        <div id="img-preview-list" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
         <div class="img-upload-area" id="img-upload-area" onclick="document.getElementById('f-img-file').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor=''" ondrop="handleImgDrop(event)">
-          <div id="img-preview-wrap">
-            <div style="font-size:32px;margin-bottom:8px">📷</div>
-            <div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP 지원</div>
-          </div>
+          <div style="font-size:24px;margin-bottom:6px">📷</div>
+          <div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP · 한 번에 여러 장 선택 가능</div>
         </div>
-        <input type="file" id="f-img-file" accept="image/*" style="display:none" onchange="handleImgSelect(event)">
+        <input type="file" id="f-img-file" accept="image/*" multiple style="display:none" onchange="handleImgSelect(event)">
         <div id="img-uploading" class="hidden" style="font-size:13px;color:var(--text-muted);margin-top:8px;text-align:center">⏳ 업로드 중...</div>
-        <input type="hidden" id="f-img-url">
       </div>
       <div class="form-row"><label>제품 설명</label><textarea id="f-desc" placeholder="주요 특징, 용도, 주의사항 등"></textarea></div>
     </div>
@@ -479,9 +493,11 @@ async function deleteCategoryToDB(id) {
   await deleteDoc(doc(db, 'categories', id));
 }
 
-// ── Cloudinary ──
+// ── Cloudinary (다중 이미지) ──
 const CLOUD_NAME = 'dn1jg33s4';
 const UPLOAD_PRESET = 'tool-catalog';
+let currentImgUrls = []; // 현재 편집 중인 이미지 URL 배열
+
 async function uploadToCloudinary(file) {
   const fd = new FormData();
   fd.append('file', file);
@@ -490,24 +506,52 @@ async function uploadToCloudinary(file) {
   const json = await res.json();
   return json.secure_url;
 }
-function handleImgSelect(e) { if (e.target.files[0]) uploadImg(e.target.files[0]); }
+
+function handleImgSelect(e) {
+  const files = Array.from(e.target.files);
+  if (files.length) uploadImgs(files);
+  e.target.value = '';
+}
 function handleImgDrop(e) {
   e.preventDefault();
   document.getElementById('img-upload-area').style.borderColor = '';
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) uploadImg(file);
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (files.length) uploadImgs(files);
 }
-async function uploadImg(file) {
+
+async function uploadImgs(files) {
+  const remaining = 5 - currentImgUrls.length;
+  if (remaining <= 0) { alert('사진은 최대 5장까지 올릴 수 있어요.'); return; }
+  const toUpload = files.slice(0, remaining);
   document.getElementById('img-uploading').classList.remove('hidden');
   document.getElementById('img-upload-area').style.pointerEvents = 'none';
   try {
-    const url = await uploadToCloudinary(file);
-    document.getElementById('f-img-url').value = url;
-    document.getElementById('img-preview-wrap').innerHTML = `<img src="${url}" style="width:100%;height:120px;object-fit:cover;border-radius:6px"><div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 업로드 완료 · 다시 클릭하면 변경</div>`;
+    for (const file of toUpload) {
+      const url = await uploadToCloudinary(file);
+      currentImgUrls.push(url);
+    }
+    renderImgPreviews();
   } catch(e) { alert('업로드 실패. 다시 시도해 주세요.'); }
   document.getElementById('img-uploading').classList.add('hidden');
   document.getElementById('img-upload-area').style.pointerEvents = 'auto';
 }
+
+function renderImgPreviews() {
+  const wrap = document.getElementById('img-preview-list');
+  wrap.innerHTML = currentImgUrls.map((url, i) => `
+    <div class="thumb-item">
+      <img src="${url}" alt="사진${i+1}">
+      <button class="thumb-del" onclick="removeImg(${i})">✕</button>
+    </div>`).join('');
+  const area = document.getElementById('img-upload-area');
+  area.style.display = currentImgUrls.length >= 5 ? 'none' : '';
+}
+
+window.removeImg = function(i) {
+  currentImgUrls.splice(i, 1);
+  renderImgPreviews();
+};
+
 window.handleImgSelect = handleImgSelect;
 window.handleImgDrop = handleImgDrop;
 
@@ -584,10 +628,21 @@ window.openDetail = function(id) {
   if (!p) return;
   const cat = categories.find(c => c.id === p.catId);
   const isKr = (p.origin||'').startsWith('국산');
-  const imgHtml = p.imgUrl ? `<img src="${p.imgUrl}" alt="${p.name}">` : (p.icon||'📦');
+  const imgs = p.imgUrls && p.imgUrls.length ? p.imgUrls : (p.imgUrl ? [p.imgUrl] : []);
+
+  let sliderHtml = '';
+  if (imgs.length > 0) {
+    const tracks = imgs.map(u => `<img src="${u}" alt="${p.name}">`).join('');
+    const dots = imgs.length > 1 ? `<div class="slider-dots">${imgs.map((_,i)=>`<button class="slider-dot${i===0?' active':''}" onclick="slideTo(${i})"></button>`).join('')}</div>` : '';
+    const btns = imgs.length > 1 ? `<button class="slider-btn slider-prev" onclick="slideBy(-1)">&#8249;</button><button class="slider-btn slider-next" onclick="slideBy(1)">&#8250;</button>` : '';
+    sliderHtml = `<div class="slider-wrap">${btns}<div class="slider-track" id="slider-track">${tracks}</div>${dots}</div>`;
+  } else {
+    sliderHtml = `<div class="modal-img">${p.icon||'📦'}</div>`;
+  }
+
   document.getElementById('detail-title').textContent = p.name;
   document.getElementById('detail-body').innerHTML = `
-    <div class="modal-img">${imgHtml}</div>
+    ${sliderHtml}
     <div class="modal-cat">${cat?.name||''}</div>
     <div class="modal-name">${p.name}</div>
     ${p.desc?`<div class="modal-desc">${p.desc}</div>`:''}
@@ -602,6 +657,22 @@ window.openDetail = function(id) {
       <div style="font-size:13px;color:var(--text-muted)">${settings.email}</div>
     </div>`;
   document.getElementById('detail-modal').classList.remove('hidden');
+  currentSlide = 0;
+};
+
+let currentSlide = 0;
+window.slideBy = function(dir) {
+  const track = document.getElementById('slider-track');
+  if (!track) return;
+  const total = track.children.length;
+  currentSlide = (currentSlide + dir + total) % total;
+  slideTo(currentSlide);
+};
+window.slideTo = function(i) {
+  currentSlide = i;
+  const track = document.getElementById('slider-track');
+  if (track) track.style.transform = `translateX(-${i * 100}%)`;
+  document.querySelectorAll('.slider-dot').forEach((d,idx) => d.classList.toggle('active', idx===i));
 };
 window.closeDetail = function() { document.getElementById('detail-modal').classList.add('hidden'); };
 
@@ -688,15 +759,13 @@ window.openProductModal = function(id) {
     document.getElementById('f-size').value = p.size||'';
     document.getElementById('f-material').value = p.material||'';
     document.getElementById('f-unit').value = p.unit||'';
-    document.getElementById('f-img-url').value = p.imgUrl||'';
     document.getElementById('f-desc').value = p.desc||'';
-    document.getElementById('img-preview-wrap').innerHTML = p.imgUrl
-      ? `<img src="${p.imgUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:6px"><div style="font-size:11px;color:var(--text-muted);margin-top:6px">✅ 기존 사진 · 다시 클릭하면 변경</div>`
-      : `<div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div>`;
+    currentImgUrls = p.imgUrls && p.imgUrls.length ? [...p.imgUrls] : (p.imgUrl ? [p.imgUrl] : []);
   } else {
-    ['f-name','f-size','f-material','f-unit','f-img-url','f-desc'].forEach(i => document.getElementById(i).value='');
-    document.getElementById('img-preview-wrap').innerHTML = `<div style="font-size:32px;margin-bottom:8px">📷</div><div style="font-size:13px;color:var(--text-muted)">클릭하거나 사진을 드래그하세요</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">JPG, PNG, WEBP 지원</div>`;
+    ['f-name','f-size','f-material','f-unit','f-desc'].forEach(i => document.getElementById(i).value='');
+    currentImgUrls = [];
   }
+  renderImgPreviews();
   document.getElementById('product-modal').classList.remove('hidden');
 };
 window.closeProductModal = function() { document.getElementById('product-modal').classList.add('hidden'); };
@@ -718,7 +787,8 @@ window.saveProduct = async function() {
     size: document.getElementById('f-size').value.trim(),
     material: document.getElementById('f-material').value.trim(),
     unit: document.getElementById('f-unit').value.trim(),
-    imgUrl: document.getElementById('f-img-url').value||'',
+    imgUrls: [...currentImgUrls],
+    imgUrl: currentImgUrls[0] || '',
     icon: '📦',
     desc: document.getElementById('f-desc').value.trim(),
   };
