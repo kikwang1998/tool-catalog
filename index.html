@@ -327,7 +327,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
       <select class="mobile-cat-select" id="mobile-cat-select" onchange="filterCat(this.value||null)"></select>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="제품명, 규격, 재질로 검색..." oninput="renderProducts()" onkeydown="if(event.key==='Enter')renderProducts()">
+        <input type="text" id="search-input" placeholder="제품명, 규격, 재질로 검색..." oninput="renderProducts()" onkeyup="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();renderProducts();}" autocomplete="off">
       </div>
       <div class="result-count" id="result-count"></div>
     </div>
