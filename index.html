@@ -326,8 +326,8 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     <div class="catalog-topbar">
       <select class="mobile-cat-select" id="mobile-cat-select" onchange="filterCat(this.value||null)"></select>
       <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="제품명, 규격, 재질로 검색..." oninput="renderProducts()" onkeyup="if(event.key==='Enter'||event.keyCode===13){event.preventDefault();renderProducts();}" autocomplete="off">
+        <span class="search-icon" id="search-icon-btn" style="cursor:pointer">🔍</span>
+        <input type="text" id="search-input" placeholder="제품명, 규격, 재질로 검색..." autocomplete="off">
       </div>
       <div class="result-count" id="result-count"></div>
     </div>
@@ -628,7 +628,7 @@ window.showPage = function(id) {
   const idx = {home:0,catalog:1,about:2,login:3,admin:3};
   if (idx[id] !== undefined) document.querySelectorAll('nav button')[idx[id]]?.classList.add('active');
   if (id === 'home') renderHome();
-  if (id === 'catalog') renderCatalog();
+  if (id === 'catalog') { renderCatalog(); setTimeout(initSearchEvents, 50); }
   if (id === 'about') renderAbout();
   if (id === 'admin') renderAdmin();
 };
@@ -670,6 +670,24 @@ function renderCatalog() {
   renderProducts();
 }
 window.filterCat = function(id) { selectedCat = (id === null || id === '' || id === 'null') ? null : id; renderCatalog(); };
+
+// ── 검색창 이벤트 (초기화 후 등록) ──
+function initSearchEvents() {
+  const input = document.getElementById('search-input');
+  const iconBtn = document.getElementById('search-icon-btn');
+  if (!input) return;
+  // 타이핑 즉시 검색
+  input.addEventListener('input', () => renderProducts());
+  // 엔터 키
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      e.preventDefault();
+      renderProducts();
+    }
+  });
+  // 돋보기 클릭
+  if (iconBtn) iconBtn.addEventListener('click', () => renderProducts());
+}
 function renderProducts() {
   const q = (document.getElementById('search-input')?.value||'').toLowerCase();
   let list = products;
@@ -926,6 +944,7 @@ window.saveSettings = async function() {
 // ── 초기 로드 ──
 await loadAll();
 document.getElementById('loading-screen').style.display = 'none';
+setTimeout(initSearchEvents, 100);
 
 // 연락처 직접 DOM 업데이트 (renderHome 전에 확실히 반영)
 const telEl = document.getElementById('home-tel');
