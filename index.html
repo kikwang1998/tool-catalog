@@ -187,6 +187,8 @@ nav button:hover, nav button.active { background: #f0f0f0; color: #1a1a1a; }
   .hero { padding: 40px 16px; }
   .sidebar { display: none; }
   .catalog-main { padding: 20px 16px; }
+  .mobile-cat-select { display:block; }
+  .catalog-topbar { flex-wrap: wrap; }
 }
 
 /* 슬라이더 */
@@ -238,6 +240,23 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
 .hero-contact-row:last-child { margin-bottom:0; }
 .hero-contact-row .home-contact-label { color:#555; min-width:44px; flex-shrink:0; }
 .hero-contact-row span:last-child { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.mobile-cat-select {
+  display: none;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  margin-bottom: 8px;
+}
+@media (max-width: 600px) {
+  .mobile-cat-select { display: block; }
+}
 </style>
 </head>
 <body>
@@ -305,9 +324,10 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
   </div>
   <div class="catalog-main">
     <div class="catalog-topbar">
+      <select class="mobile-cat-select" id="mobile-cat-select" onchange="filterCat(this.value||null)"></select>
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="search-input" placeholder="제품명, 규격, 재질로 검색..." oninput="renderProducts()">
+        <input type="text" id="search-input" placeholder="제품명, 규격, 재질로 검색..." oninput="renderProducts()" onkeydown="if(event.key==='Enter')renderProducts()">
       </div>
       <div class="result-count" id="result-count"></div>
     </div>
@@ -641,9 +661,15 @@ function renderCatalog() {
       const cnt = products.filter(p => p.catId === c.id).length;
       return `<div class="sidebar-item ${selectedCat===c.id?'active':''}" onclick="filterCat('${c.id}')"><span>${c.icon||''} ${c.name}</span><span class="sidebar-count">${cnt}</span></div>`;
     }).join('');
+  // 모바일 셀렉트박스 업데이트
+  const msel = document.getElementById('mobile-cat-select');
+  if (msel) {
+    msel.innerHTML = `<option value="">전체 카테고리</option>` +
+      categories.map(c => `<option value="${c.id}" ${selectedCat===c.id?'selected':''}>${c.icon||''} ${c.name}</option>`).join('');
+  }
   renderProducts();
 }
-window.filterCat = function(id) { selectedCat = id; renderCatalog(); };
+window.filterCat = function(id) { selectedCat = (id === null || id === '' || id === 'null') ? null : id; renderCatalog(); };
 function renderProducts() {
   const q = (document.getElementById('search-input')?.value||'').toLowerCase();
   let list = products;
