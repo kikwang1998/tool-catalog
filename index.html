@@ -403,7 +403,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
   <div id="admin-stats" class="hidden">
     <div class="admin-table-wrap" style="padding:28px;max-width:520px">
       <h3 style="font-size:15px;font-weight:600;margin-bottom:6px">방문자 통계</h3>
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:24px">어드민 본인 접속도 포함돼요</p>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:24px">같은 기기·브라우저에서 하루 1회만 카운트돼요</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center">
           <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">오늘</div>
@@ -535,18 +535,34 @@ let loggedIn = false;
 let selectedCat = null;
 let editingProdId = null;
 
-// ── 방문자 기록 ──
+// ── 방문자 기록 (순방문자 - 하루 1회만 카운트) ──
 async function recordVisit() {
   try {
     const today = new Date();
     const dateKey = today.toISOString().slice(0, 10); // "2025-05-01"
-    const monthKey = today.toISOString().slice(0, 7); // "2025-05"
+    const monthKey = today.toISOString().slice(0, 7);  // "2025-05"
+    const cookieKey = 'visited_' + dateKey;
+
+    // 오늘 이미 방문한 적 있으면 카운트 안 함
+    if (localStorage.getItem(cookieKey)) return;
+
+    // 처음 방문 → Firebase에 기록
     const visitRef = doc(db, 'stats', 'visits');
     await setDoc(visitRef, {
       total: increment(1),
       [dateKey]: increment(1),
       [monthKey]: increment(1),
     }, { merge: true });
+
+    // 오늘 방문 표시 저장 (자정 이후 자동 만료되도록 날짜 키 사용)
+    localStorage.setItem(cookieKey, '1');
+
+    // 어제 이전 키 정리 (용량 관리)
+    for (let i = 1; i <= 30; i++) {
+      const old = new Date(today);
+      old.setDate(old.getDate() - i);
+      localStorage.removeItem('visited_' + old.toISOString().slice(0, 10));
+    }
   } catch(e) { /* 방문자 기록 실패해도 사이트 동작에 영향 없음 */ }
 }
 
