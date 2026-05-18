@@ -379,6 +379,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     <button class="admin-tab active" onclick="switchAdminTab('products',this)">제품 관리 <span id="admin-prod-count"></span></button>
     <button class="admin-tab" onclick="switchAdminTab('categories',this)">카테고리 관리</button>
     <button class="admin-tab" onclick="switchAdminTab('settings',this)">사이트 설정</button>
+    <button class="admin-tab" onclick="switchAdminTab('stats',this)">방문자 통계</button>
   </div>
   <div id="admin-products">
     <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
@@ -399,6 +400,36 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     </div>
     <div class="admin-table-wrap"><div id="admin-cat-list"></div></div>
   </div>
+  <div id="admin-stats" class="hidden">
+    <div class="admin-table-wrap" style="padding:28px;max-width:520px">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:6px">방문자 통계</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:24px">어드민 본인 접속도 포함돼요</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">오늘</div>
+          <div id="stat-today" style="font-size:32px;font-weight:700;color:#d4a800">-</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">명</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">이번 주</div>
+          <div id="stat-week" style="font-size:32px;font-weight:700;color:#d4a800">-</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">명</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">이번 달</div>
+          <div id="stat-month" style="font-size:32px;font-weight:700;color:#d4a800">-</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">명</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;margin-bottom:8px">누적</div>
+          <div id="stat-total" style="font-size:32px;font-weight:700;color:#d4a800">-</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">명</div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="refreshStats()">🔄 새로고침</button>
+    </div>
+  </div>
+
   <div id="admin-settings" class="hidden">
     <div class="admin-table-wrap" style="padding:24px;max-width:500px">
       <h3 style="font-size:15px;font-weight:600;margin-bottom:20px">회사 정보 설정</h3>
@@ -482,7 +513,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCGhNiEgwrOpSuv8XWjS6rSRYMKV-02cqM",
@@ -503,6 +534,21 @@ let settings = { name:'우리 공구', tel:'02-0000-0000', email:'contact@compan
 let loggedIn = false;
 let selectedCat = null;
 let editingProdId = null;
+
+// ── 방문자 기록 ──
+async function recordVisit() {
+  try {
+    const today = new Date();
+    const dateKey = today.toISOString().slice(0, 10); // "2025-05-01"
+    const monthKey = today.toISOString().slice(0, 7); // "2025-05"
+    const visitRef = doc(db, 'stats', 'visits');
+    await setDoc(visitRef, {
+      total: increment(1),
+      [dateKey]: increment(1),
+      [monthKey]: increment(1),
+    }, { merge: true });
+  } catch(e) { /* 방문자 기록 실패해도 사이트 동작에 영향 없음 */ }
+}
 
 // ── Firebase CRUD ──
 async function loadAll() {
@@ -533,6 +579,31 @@ async function loadAll() {
   const prodSnap = await getDocs(collection(db, 'products'));
   products = [];
   prodSnap.forEach(d => products.push({ id: d.id, ...d.data() }));
+}
+
+async function loadVisitStats() {
+  try {
+    const snap = await getDoc(doc(db, 'stats', 'visits'));
+    if (!snap.exists()) return { today: 0, week: 0, month: 0, total: 0 };
+    const data = snap.data();
+    const today = new Date();
+    const todayKey = today.toISOString().slice(0, 10);
+    const monthKey = today.toISOString().slice(0, 7);
+    // 이번 주 합산
+    let week = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const k = d.toISOString().slice(0, 10);
+      week += data[k] || 0;
+    }
+    return {
+      today: data[todayKey] || 0,
+      week,
+      month: data[monthKey] || 0,
+      total: data.total || 0,
+    };
+  } catch(e) { return { today: 0, week: 0, month: 0, total: 0 }; }
 }
 
 async function saveSettingsToDB(data) {
@@ -804,7 +875,8 @@ function renderAdmin() {
 window.switchAdminTab = function(tab, el) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  ['products','categories','settings'].forEach(t => document.getElementById('admin-'+t).classList.toggle('hidden', t!==tab));
+  ['products','categories','settings','stats'].forEach(t => document.getElementById('admin-'+t).classList.toggle('hidden', t!==tab));
+  if (tab === 'stats') refreshStats();
 };
 function renderAdminProds() {
   document.getElementById('admin-prod-body').innerHTML = products.map(p => {
@@ -917,6 +989,19 @@ window.deleteCat = async function(id) {
 };
 
 // ── 설정 저장 ──
+window.refreshStats = async function() {
+  ['today','week','month','total'].forEach(k => {
+    const el = document.getElementById('stat-'+k);
+    if (el) el.textContent = '...';
+  });
+  const s = await loadVisitStats();
+  const el = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  el('stat-today', s.today);
+  el('stat-week', s.week);
+  el('stat-month', s.month);
+  el('stat-total', s.total);
+};
+
 window.saveSettings = async function() {
   settings.name = document.getElementById('set-company').value.trim()||settings.name;
   settings.tel = document.getElementById('set-tel').value.trim();
@@ -943,6 +1028,7 @@ window.saveSettings = async function() {
 
 // ── 초기 로드 ──
 await loadAll();
+recordVisit(); // 방문자 기록
 document.getElementById('loading-screen').style.display = 'none';
 setTimeout(initSearchEvents, 100);
 
