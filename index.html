@@ -84,6 +84,10 @@ nav button:hover, nav button.active { background: #f0f0f0; color: #1a1a1a; }
 .sidebar-item.active { background: #fffbea; border-left-color: #f5c000; color: #b8860b; font-weight: 500; }
 .sidebar-count { font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 1px 7px; border-radius: 10px; }
 .sidebar-item.active .sidebar-count { background: #fff3c0; color: #b8860b; }
+.sidebar-sub { padding-left: 38px; font-size: 12px; color: #666; }
+.sidebar-sub.active { color: #b8860b; }
+.sidebar-toggle { font-size: 10px; color: var(--text-muted); padding: 2px 5px; border-radius: 4px; }
+.sidebar-toggle:hover { background: var(--border); }
 .catalog-main { flex: 1; padding: 28px 32px; }
 .catalog-topbar { display: flex; gap: 10px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
 .search-wrap { position: relative; flex: 1; min-width: 200px; }
@@ -498,8 +502,9 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
 <!-- 카테고리 추가 모달 -->
 <div id="cat-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeCatModal()">
   <div class="form-modal" style="max-width:400px">
-    <div class="modal-header"><h2>카테고리 추가</h2><button class="modal-close" onclick="closeCatModal()">✕</button></div>
+    <div class="modal-header"><h2 id="cat-modal-title">카테고리 추가</h2><button class="modal-close" onclick="closeCatModal()">✕</button></div>
     <div class="form-body">
+      <div class="form-row"><label>상위 카테고리</label><select id="cat-f-parent"></select></div>
       <div class="form-row"><label>카테고리명 *</label><input type="text" id="cat-f-name" placeholder="예: 측정공구"></div>
       <div class="form-row"><label>아이콘 (이모지)</label><input type="text" id="cat-f-icon" placeholder="예: 📐" maxlength="4"></div>
     </div>
@@ -723,15 +728,17 @@ window.showPage = function(id) {
 // ── 홈 ──
 function renderHome() {
   document.getElementById('stat-products').textContent = products.length;
-  document.getElementById('stat-cats').textContent = categories.length;
+  document.getElementById('stat-cats').textContent = categories.filter(c => !c.parentId).length;
   document.getElementById('hero-company').textContent = settings.name;
   document.getElementById('company-name-header').textContent = settings.name;
   const _tel = document.getElementById('home-tel'); if(_tel) _tel.textContent = settings.tel;
   const _email = document.getElementById('home-email'); if(_email) _email.textContent = settings.email;
   const _addr = document.getElementById('home-addr'); if(_addr) _addr.textContent = settings.addr;
   const _hours = document.getElementById('home-hours'); if(_hours) _hours.textContent = settings.hours;
-  document.getElementById('home-cat-grid').innerHTML = categories.map(c => {
-    const cnt = products.filter(p => p.catId === c.id).length;
+  const mainCats = categories.filter(c => !c.parentId);
+  document.getElementById('home-cat-grid').innerHTML = mainCats.map(c => {
+    const subIds = categories.filter(s => s.parentId === c.id).map(s => s.id);
+    const cnt = products.filter(p => p.catId === c.id || subIds.includes(p.catId)).length;
     return `<div class="cat-card" onclick="goToCat('${c.id}')">
       <div class="cat-icon">${c.icon||'📦'}</div>
       <div><div class="cat-name">${c.name}</div><div class="cat-count">제품 ${cnt}개</div></div>
@@ -741,18 +748,63 @@ function renderHome() {
 window.goToCat = function(id) { selectedCat = id; showPage('catalog'); };
 
 // ── 카탈로그 ──
+let expandedCats = new Set();
+window.toggleCatExpand = function(id) {
+  if (expandedCats.has(id)) expandedCats.delete(id); else expandedCats.add(id);
+  renderCatalog();
+};
+
 function renderCatalog() {
-  document.getElementById('sidebar-list').innerHTML =
-    `<div class="sidebar-item ${selectedCat===null?'active':''}" onclick="filterCat(null)"><span>전체</span><span class="sidebar-count">${products.length}</span></div>` +
-    categories.map(c => {
-      const cnt = products.filter(p => p.catId === c.id).length;
-      return `<div class="sidebar-item ${selectedCat===c.id?'active':''}" onclick="filterCat('${c.id}')"><span>${c.icon||''} ${c.name}</span><span class="sidebar-count">${cnt}</span></div>`;
-    }).join('');
-  // 모바일 셀렉트박스 업데이트
+  const mains = categories.filter(c => !c.parentId);
+  let html = `<div class="sidebar-item ${selectedCat===null?'active':''}" onclick="filterCat(null)"><span>전체</span><span class="sidebar-count">${products.length}</span></div>`;
+
+  mains.forEach(main => {
+    const subs = categories.filter(s => s.parentId === main.id);
+    const subIds = subs.map(s => s.id);
+    const totalCnt = products.filter(p => p.catId === main.id || subIds.includes(p.catId)).length;
+    const isMainActive = selectedCat === main.id;
+
+    if (subs.length === 0) {
+      html += `<div class="sidebar-item ${isMainActive?'active':''}" onclick="filterCat('${main.id}')"><span>${main.icon||''} ${main.name}</span><span class="sidebar-count">${totalCnt}</span></div>`;
+      return;
+    }
+
+    const isExpanded = expandedCats.has(main.id) || subIds.includes(selectedCat);
+    html += `<div class="sidebar-item ${isMainActive?'active':''}" onclick="filterCat('${main.id}')">
+      <span>${main.icon||''} ${main.name}</span>
+      <span style="display:flex;align-items:center;gap:6px">
+        <span class="sidebar-count">${totalCnt}</span>
+        <span class="sidebar-toggle" onclick="event.stopPropagation();toggleCatExpand('${main.id}')">${isExpanded?'▾':'▸'}</span>
+      </span>
+    </div>`;
+    if (isExpanded) {
+      subs.forEach(sub => {
+        const cnt = products.filter(p => p.catId === sub.id).length;
+        html += `<div class="sidebar-item sidebar-sub ${selectedCat===sub.id?'active':''}" onclick="filterCat('${sub.id}')"><span>${sub.icon||''} ${sub.name}</span><span class="sidebar-count">${cnt}</span></div>`;
+      });
+    }
+  });
+
+  document.getElementById('sidebar-list').innerHTML = html;
+
+  // 모바일 셀렉트박스 업데이트 (대분류/소분류 그룹)
   const msel = document.getElementById('mobile-cat-select');
   if (msel) {
-    msel.innerHTML = `<option value="">전체 카테고리</option>` +
-      categories.map(c => `<option value="${c.id}" ${selectedCat===c.id?'selected':''}>${c.icon||''} ${c.name}</option>`).join('');
+    let opts = `<option value="">전체 카테고리</option>`;
+    mains.forEach(main => {
+      const subs = categories.filter(s => s.parentId === main.id);
+      if (subs.length === 0) {
+        opts += `<option value="${main.id}" ${selectedCat===main.id?'selected':''}>${main.icon||''} ${main.name}</option>`;
+      } else {
+        opts += `<optgroup label="${main.icon||''} ${main.name}">`;
+        opts += `<option value="${main.id}" ${selectedCat===main.id?'selected':''}>${main.name} (전체)</option>`;
+        subs.forEach(sub => {
+          opts += `<option value="${sub.id}" ${selectedCat===sub.id?'selected':''}>　${sub.icon||''} ${sub.name}</option>`;
+        });
+        opts += `</optgroup>`;
+      }
+    });
+    msel.innerHTML = opts;
   }
   renderProducts();
 }
@@ -778,7 +830,14 @@ function initSearchEvents() {
 function renderProducts() {
   const q = (document.getElementById('search-input')?.value||'').toLowerCase();
   let list = products;
-  if (selectedCat) list = list.filter(p => p.catId === selectedCat);
+  if (selectedCat) {
+    const subIds = categories.filter(c => c.parentId === selectedCat).map(c => c.id);
+    if (subIds.length > 0) {
+      list = list.filter(p => p.catId === selectedCat || subIds.includes(p.catId));
+    } else {
+      list = list.filter(p => p.catId === selectedCat);
+    }
+  }
   if (q) list = list.filter(p => (p.name||'').toLowerCase().includes(q)||(p.size||'').toLowerCase().includes(q)||(p.material||'').toLowerCase().includes(q));
   document.getElementById('result-count').textContent = `${list.length}개 제품`;
   const grid = document.getElementById('product-grid');
@@ -912,14 +971,28 @@ function renderAdminProds() {
   }).join('');
 }
 function renderAdminCats() {
-  document.getElementById('admin-cat-list').innerHTML = categories.map(c => {
-    const cnt = products.filter(p => p.catId === c.id).length;
-    return `<div class="cat-manage-item">
+  const mains = categories.filter(c => !c.parentId);
+  document.getElementById('admin-cat-list').innerHTML = mains.map(c => {
+    const subs = categories.filter(s => s.parentId === c.id);
+    const subIds = subs.map(s => s.id);
+    const totalCnt = products.filter(p => p.catId === c.id || subIds.includes(p.catId)).length;
+    let row = `<div class="cat-manage-item">
       <div style="font-size:22px">${c.icon||'📦'}</div>
-      <div style="flex:1;font-size:13px;font-weight:500">${c.name}</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${cnt}개</div>
+      <div style="flex:1;font-size:13px;font-weight:600">${c.name}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${totalCnt}개</div>
+      <button class="btn btn-outline btn-sm" onclick="openCatModal('${c.id}')" style="margin-right:6px">+ 하위</button>
       <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">삭제</button>
     </div>`;
+    row += subs.map(s => {
+      const cnt = products.filter(p => p.catId === s.id).length;
+      return `<div class="cat-manage-item" style="padding-left:48px;background:var(--bg)">
+        <div style="font-size:18px">${s.icon||'📦'}</div>
+        <div style="flex:1;font-size:13px;color:#555">└ ${s.name}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${cnt}개</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteCat('${s.id}')">삭제</button>
+      </div>`;
+    }).join('');
+    return row;
   }).join('');
 }
 
@@ -927,7 +1000,15 @@ function renderAdminCats() {
 window.openProductModal = function(id) {
   editingProdId = id || null;
   document.getElementById('product-modal-title').textContent = id ? '제품 수정' : '제품 추가';
-  document.getElementById('f-cat').innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('f-cat').innerHTML = categories.filter(c => !c.parentId).map(main => {
+    const subs = categories.filter(s => s.parentId === main.id);
+    if (subs.length === 0) {
+      return `<option value="${main.id}">${main.icon||''} ${main.name}</option>`;
+    }
+    const subOpts = `<option value="${main.id}">${main.name} (분류 미지정)</option>` +
+      subs.map(s => `<option value="${s.id}">${s.icon||''} ${s.name}</option>`).join('');
+    return `<optgroup label="${main.icon||''} ${main.name}">${subOpts}</optgroup>`;
+  }).join('');
   if (id) {
     const p = products.find(x => x.id === id);
     document.getElementById('f-name').value = p.name;
@@ -981,16 +1062,23 @@ window.saveProduct = async function() {
 };
 
 // ── 카테고리 CRUD ──
-window.openCatModal = function() {
+window.openCatModal = function(parentId) {
   document.getElementById('cat-f-name').value='';
   document.getElementById('cat-f-icon').value='';
+  const mains = categories.filter(c => !c.parentId);
+  const parentSel = document.getElementById('cat-f-parent');
+  parentSel.innerHTML = '<option value="">없음 (대분류로 추가)</option>' +
+    mains.map(c => `<option value="${c.id}">${c.icon||''} ${c.name}</option>`).join('');
+  parentSel.value = parentId || '';
+  document.getElementById('cat-modal-title').textContent = parentId ? '하위 카테고리 추가' : '카테고리 추가';
   document.getElementById('cat-modal').classList.remove('hidden');
 };
 window.closeCatModal = function() { document.getElementById('cat-modal').classList.add('hidden'); };
 window.saveCat = async function() {
   const name = document.getElementById('cat-f-name').value.trim();
   if (!name) { alert('카테고리명을 입력해 주세요'); return; }
-  const obj = { name, icon: document.getElementById('cat-f-icon').value.trim()||'📦', order: categories.length+1 };
+  const parentId = document.getElementById('cat-f-parent').value || null;
+  const obj = { name, icon: document.getElementById('cat-f-icon').value.trim()||'📦', order: categories.length+1, parentId };
   const newId = await addCategoryToDB(obj);
   categories.push({ id:newId, ...obj });
   closeCatModal(); renderAdminCats();
@@ -998,6 +1086,8 @@ window.saveCat = async function() {
 window.deleteCat = async function(id) {
   const cnt = products.filter(p => p.catId === id).length;
   if (cnt > 0) { alert(`이 카테고리에 제품 ${cnt}개가 있어 삭제할 수 없습니다.`); return; }
+  const subs = categories.filter(c => c.parentId === id);
+  if (subs.length > 0) { alert(`하위 카테고리가 ${subs.length}개 있어 삭제할 수 없습니다. 먼저 하위 카테고리를 삭제해 주세요.`); return; }
   if (!confirm('이 카테고리를 삭제할까요?')) return;
   await deleteCategoryToDB(id);
   categories = categories.filter(c => c.id !== id);
