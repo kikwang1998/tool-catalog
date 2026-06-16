@@ -647,6 +647,9 @@ async function addCategoryToDB(data) {
 async function deleteCategoryToDB(id) {
   await deleteDoc(doc(db, 'categories', id));
 }
+async function updateCategoryToDB(id, data) {
+  await updateDoc(doc(db, 'categories', id), data);
+}
 
 // ── Cloudinary (다중 이미지) ──
 const CLOUD_NAME = 'dn1jg33s4';
@@ -980,6 +983,7 @@ function renderAdminCats() {
       <div style="font-size:22px">${c.icon||'📦'}</div>
       <div style="flex:1;font-size:13px;font-weight:600">${c.name}</div>
       <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${totalCnt}개</div>
+      <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${c.id}')" style="margin-right:6px">수정</button>
       <button class="btn btn-outline btn-sm" onclick="openCatModal('${c.id}')" style="margin-right:6px">+ 하위</button>
       <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">삭제</button>
     </div>`;
@@ -989,6 +993,7 @@ function renderAdminCats() {
         <div style="font-size:18px">${s.icon||'📦'}</div>
         <div style="flex:1;font-size:13px;color:#555">└ ${s.name}</div>
         <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${cnt}개</div>
+        <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${s.id}')" style="margin-right:6px">수정</button>
         <button class="btn btn-danger btn-sm" onclick="deleteCat('${s.id}')">삭제</button>
       </div>`;
     }).join('');
@@ -1062,25 +1067,55 @@ window.saveProduct = async function() {
 };
 
 // ── 카테고리 CRUD ──
+let editingCatId = null;
+
 window.openCatModal = function(parentId) {
+  editingCatId = null;
   document.getElementById('cat-f-name').value='';
   document.getElementById('cat-f-icon').value='';
   const mains = categories.filter(c => !c.parentId);
   const parentSel = document.getElementById('cat-f-parent');
   parentSel.innerHTML = '<option value="">없음 (대분류로 추가)</option>' +
     mains.map(c => `<option value="${c.id}">${c.icon||''} ${c.name}</option>`).join('');
+  parentSel.disabled = false;
   parentSel.value = parentId || '';
   document.getElementById('cat-modal-title').textContent = parentId ? '하위 카테고리 추가' : '카테고리 추가';
   document.getElementById('cat-modal').classList.remove('hidden');
 };
-window.closeCatModal = function() { document.getElementById('cat-modal').classList.add('hidden'); };
+
+window.openEditCatModal = function(id) {
+  const c = categories.find(x => x.id === id);
+  if (!c) return;
+  editingCatId = id;
+  document.getElementById('cat-f-name').value = c.name;
+  document.getElementById('cat-f-icon').value = c.icon || '';
+  const mains = categories.filter(m => !m.parentId && m.id !== id);
+  const parentSel = document.getElementById('cat-f-parent');
+  parentSel.innerHTML = '<option value="">없음 (대분류)</option>' +
+    mains.map(m => `<option value="${m.id}">${m.icon||''} ${m.name}</option>`).join('');
+  parentSel.value = c.parentId || '';
+  // 대분류이면서 하위 카테고리가 있는 경우, 상위 변경 비활성화 (구조 보호)
+  const hasSubs = categories.some(s => s.parentId === id);
+  parentSel.disabled = hasSubs;
+  document.getElementById('cat-modal-title').textContent = '카테고리 수정';
+  document.getElementById('cat-modal').classList.remove('hidden');
+};
+window.closeCatModal = function() { editingCatId = null; document.getElementById('cat-modal').classList.add('hidden'); };
 window.saveCat = async function() {
   const name = document.getElementById('cat-f-name').value.trim();
   if (!name) { alert('카테고리명을 입력해 주세요'); return; }
+  const icon = document.getElementById('cat-f-icon').value.trim()||'📦';
   const parentId = document.getElementById('cat-f-parent').value || null;
-  const obj = { name, icon: document.getElementById('cat-f-icon').value.trim()||'📦', order: categories.length+1, parentId };
-  const newId = await addCategoryToDB(obj);
-  categories.push({ id:newId, ...obj });
+
+  if (editingCatId) {
+    const obj = { name, icon, parentId };
+    await updateCategoryToDB(editingCatId, obj);
+    categories = categories.map(c => c.id === editingCatId ? { ...c, ...obj } : c);
+  } else {
+    const obj = { name, icon, order: categories.length+1, parentId };
+    const newId = await addCategoryToDB(obj);
+    categories.push({ id:newId, ...obj });
+  }
   closeCatModal(); renderAdminCats();
 };
 window.deleteCat = async function(id) {
