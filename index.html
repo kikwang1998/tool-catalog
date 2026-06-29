@@ -261,6 +261,15 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
 @media (max-width: 600px) {
   .mobile-cat-select { display: block; }
 }
+
+/* 대표 상품 */
+.featured-section { margin-bottom: 28px; }
+.featured-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.featured-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.featured-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.featured-card { background: var(--surface); border: 2px solid #f5c000; border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: all .15s; position: relative; }
+.featured-card:hover { box-shadow: 0 4px 12px rgba(245,192,0,0.25); transform: translateY(-2px); }
+.featured-badge { position: absolute; top: 8px; left: 8px; background: #f5c000; color: #1a1a1a; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px; z-index: 1; }
 </style>
 </head>
 <body>
@@ -335,6 +344,10 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
       </div>
       <div class="result-count" id="result-count"></div>
     </div>
+    <div id="featured-section" class="featured-section" style="display:none">
+      <div class="featured-title">⭐ 대표 상품</div>
+      <div class="featured-grid" id="featured-grid"></div>
+    </div>
     <div class="product-grid" id="product-grid"></div>
   </div>
 </div>
@@ -392,7 +405,7 @@ nav button.catalog-nav-btn.active { background: #f5c000 !important; color: #1a1a
     <div class="admin-table-wrap">
       <table class="admin-table">
         <thead><tr>
-          <th style="width:60px">사진</th><th>제품명</th><th>카테고리</th><th>규격</th><th>원산지</th><th style="width:120px">관리</th>
+          <th style="width:60px">사진</th><th>제품명</th><th>카테고리</th><th>규격</th><th>원산지</th><th style="width:60px;text-align:center">대표</th><th style="width:120px">관리</th>
         </tr></thead>
         <tbody id="admin-prod-body"></tbody>
       </table>
@@ -809,6 +822,7 @@ function renderCatalog() {
     });
     msel.innerHTML = opts;
   }
+  renderFeatured();
   renderProducts();
 }
 window.filterCat = function(id) { selectedCat = (id === null || id === '' || id === 'null') ? null : id; renderCatalog(); };
@@ -830,6 +844,30 @@ function initSearchEvents() {
   // 돋보기 클릭
   if (iconBtn) iconBtn.addEventListener('click', () => renderProducts());
 }
+function renderFeatured() {
+  const featuredList = products.filter(p => p.featured);
+  const section = document.getElementById('featured-section');
+  const grid = document.getElementById('featured-grid');
+  if (!section || !grid) return;
+  if (featuredList.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  grid.innerHTML = featuredList.map(p => {
+    const cat = categories.find(c => c.id === p.catId);
+    const isKr = (p.origin||'').startsWith('국산');
+    const imgHtml = p.imgUrl ? `<img src="${p.imgUrl}" alt="${p.name}">` : (p.icon||'📦');
+    return `<div class="featured-card" onclick="openDetail('${p.id}')">
+      <div class="featured-badge">⭐ 대표</div>
+      <div class="product-img">${imgHtml}</div>
+      <div class="product-body">
+        <div class="product-cat">${cat?.name||''}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-specs">${p.size?'규격: '+p.size+'<br>':''}${p.material?'재질: '+p.material:''}</div>
+        <span class="origin-badge ${isKr?'origin-domestic':'origin-import'}">${p.origin||''}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderProducts() {
   const q = (document.getElementById('search-input')?.value||'').toLowerCase();
   let list = products;
@@ -960,12 +998,17 @@ function renderAdminProds() {
   document.getElementById('admin-prod-body').innerHTML = products.map(p => {
     const cat = categories.find(c => c.id === p.catId);
     const imgHtml = p.imgUrl ? `<img src="${p.imgUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:4px">` : (p.icon||'📦');
+    const isFeatured = p.featured || false;
     return `<tr>
       <td style="font-size:22px">${imgHtml}</td>
       <td style="font-weight:500">${p.name}</td>
       <td>${cat?.name||'-'}</td>
       <td>${p.size||'-'}</td>
       <td>${p.origin||'-'}</td>
+      <td style="text-align:center">
+        <button onclick="toggleFeatured('${p.id}')" title="${isFeatured?'대표상품 해제':'대표상품으로 지정'}"
+          style="background:none;border:none;font-size:20px;cursor:pointer;opacity:${isFeatured?1:0.25}">⭐</button>
+      </td>
       <td><div class="td-actions">
         <button class="btn btn-outline btn-sm" onclick="editProduct('${p.id}')">수정</button>
         <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">삭제</button>
@@ -1033,6 +1076,20 @@ window.openProductModal = function(id) {
 };
 window.closeProductModal = function() { document.getElementById('product-modal').classList.add('hidden'); };
 window.editProduct = function(id) { openProductModal(id); };
+window.toggleFeatured = async function(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const featured = products.filter(x => x.featured).length;
+  if (!p.featured && featured >= 4) {
+    alert('대표 상품은 최대 4개까지만 지정할 수 있어요.\n기존 대표 상품의 ⭐를 눌러 해제 후 추가해 주세요.'); return;
+  }
+  const newVal = !p.featured;
+  await updateProductToDB(id, { featured: newVal });
+  products = products.map(x => x.id === id ? { ...x, featured: newVal } : x);
+  renderAdminProds();
+  renderFeatured();
+};
+
 window.deleteProduct = async function(id) {
   if (!confirm('이 제품을 삭제할까요?')) return;
   await deleteProductToDB(id);
