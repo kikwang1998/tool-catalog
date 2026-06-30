@@ -84,8 +84,10 @@ nav button:hover, nav button.active { background: #f0f0f0; color: #1a1a1a; }
 .sidebar-item.active { background: #fffbea; border-left-color: #f5c000; color: #b8860b; font-weight: 500; }
 .sidebar-count { font-size: 11px; color: var(--text-muted); background: var(--bg); padding: 1px 7px; border-radius: 10px; }
 .sidebar-item.active .sidebar-count { background: #fff3c0; color: #b8860b; }
-.sidebar-sub { padding-left: 38px; font-size: 12px; color: #666; }
+.sidebar-sub { padding-left: 38px; font-size: 12px; color: #555; }
 .sidebar-sub.active { color: #b8860b; }
+.sidebar-subsub { padding-left: 62px; font-size: 11px; color: #777; }
+.sidebar-subsub.active { color: #b8860b; font-weight:500; }
 .sidebar-toggle { font-size: 10px; color: var(--text-muted); padding: 2px 5px; border-radius: 4px; }
 .sidebar-toggle:hover { background: var(--border); }
 .catalog-main { flex: 1; padding: 28px 32px; }
@@ -753,8 +755,8 @@ function renderHome() {
   const _hours = document.getElementById('home-hours'); if(_hours) _hours.textContent = settings.hours;
   const mainCats = categories.filter(c => !c.parentId);
   document.getElementById('home-cat-grid').innerHTML = mainCats.map(c => {
-    const subIds = categories.filter(s => s.parentId === c.id).map(s => s.id);
-    const cnt = products.filter(p => p.catId === c.id || subIds.includes(p.catId)).length;
+    const allIds = getAllDescendantIds(c.id);
+    const cnt = products.filter(p => p.catId === c.id || allIds.includes(p.catId)).length;
     return `<div class="cat-card" onclick="goToCat('${c.id}')">
       <div class="cat-icon">${c.icon||'📦'}</div>
       <div><div class="cat-name">${c.name}</div><div class="cat-count">제품 ${cnt}개</div></div>
@@ -770,52 +772,89 @@ window.toggleCatExpand = function(id) {
   renderCatalog();
 };
 
+function isAncestorOf(ancId, targetId) {
+  let cur = categories.find(c => c.id === targetId);
+  while (cur && cur.parentId) {
+    if (cur.parentId === ancId) return true;
+    cur = categories.find(c => c.id === cur.parentId);
+  }
+  return false;
+}
+
 function renderCatalog() {
   const mains = categories.filter(c => !c.parentId);
-  let html = `<div class="sidebar-item ${selectedCat===null?'active':''}" onclick="filterCat(null)"><span>전체</span><span class="sidebar-count">${products.length}</span></div>`;
+  let sidebarHtml = `<div class="sidebar-item ${selectedCat===null?'active':''}" onclick="filterCat(null)"><span>전체</span><span class="sidebar-count">${products.length}</span></div>`;
 
   mains.forEach(main => {
-    const subs = categories.filter(s => s.parentId === main.id);
-    const subIds = subs.map(s => s.id);
-    const totalCnt = products.filter(p => p.catId === main.id || subIds.includes(p.catId)).length;
+    const mids = categories.filter(m => m.parentId === main.id);
+    const allMainIds = getAllDescendantIds(main.id);
+    const totalCnt = products.filter(p => p.catId === main.id || allMainIds.includes(p.catId)).length;
     const isMainActive = selectedCat === main.id;
+    const isMainExpanded = expandedCats.has(main.id) || (selectedCat && isAncestorOf(main.id, selectedCat)) || allMainIds.includes(selectedCat);
 
-    if (subs.length === 0) {
-      html += `<div class="sidebar-item ${isMainActive?'active':''}" onclick="filterCat('${main.id}')"><span>${main.icon||''} ${main.name}</span><span class="sidebar-count">${totalCnt}</span></div>`;
+    if (mids.length === 0) {
+      sidebarHtml += `<div class="sidebar-item ${isMainActive?'active':''}" onclick="filterCat('${main.id}')"><span>${main.icon||''} ${main.name}</span><span class="sidebar-count">${totalCnt}</span></div>`;
       return;
     }
 
-    const isExpanded = expandedCats.has(main.id) || subIds.includes(selectedCat);
-    html += `<div class="sidebar-item ${isMainActive?'active':''}" onclick="filterCat('${main.id}')">
+    sidebarHtml += `<div class="sidebar-item ${isMainActive?'active':''}" onclick="filterCat('${main.id}')">
       <span>${main.icon||''} ${main.name}</span>
-      <span style="display:flex;align-items:center;gap:6px">
+      <span style="display:flex;align-items:center;gap:4px">
         <span class="sidebar-count">${totalCnt}</span>
-        <span class="sidebar-toggle" onclick="event.stopPropagation();toggleCatExpand('${main.id}')">${isExpanded?'▾':'▸'}</span>
+        <span class="sidebar-toggle" onclick="event.stopPropagation();toggleCatExpand('${main.id}')">${isMainExpanded?'▾':'▸'}</span>
       </span>
     </div>`;
-    if (isExpanded) {
-      subs.forEach(sub => {
-        const cnt = products.filter(p => p.catId === sub.id).length;
-        html += `<div class="sidebar-item sidebar-sub ${selectedCat===sub.id?'active':''}" onclick="filterCat('${sub.id}')"><span>${sub.icon||''} ${sub.name}</span><span class="sidebar-count">${cnt}</span></div>`;
+
+    if (isMainExpanded) {
+      mids.forEach(mid => {
+        const subs = categories.filter(s => s.parentId === mid.id);
+        const allMidIds = getAllDescendantIds(mid.id);
+        const midCnt = products.filter(p => p.catId === mid.id || allMidIds.includes(p.catId)).length;
+        const isMidActive = selectedCat === mid.id;
+        const isMidExpanded = expandedCats.has(mid.id) || allMidIds.includes(selectedCat);
+
+        if (subs.length === 0) {
+          sidebarHtml += `<div class="sidebar-item sidebar-sub ${isMidActive?'active':''}" onclick="filterCat('${mid.id}')"><span>${mid.icon||''} ${mid.name}</span><span class="sidebar-count">${midCnt}</span></div>`;
+          return;
+        }
+
+        sidebarHtml += `<div class="sidebar-item sidebar-sub ${isMidActive?'active':''}" onclick="filterCat('${mid.id}')">
+          <span>${mid.icon||''} ${mid.name}</span>
+          <span style="display:flex;align-items:center;gap:4px">
+            <span class="sidebar-count">${midCnt}</span>
+            <span class="sidebar-toggle" onclick="event.stopPropagation();toggleCatExpand('${mid.id}')">${isMidExpanded?'▾':'▸'}</span>
+          </span>
+        </div>`;
+
+        if (isMidExpanded) {
+          subs.forEach(sub => {
+            const subCnt = products.filter(p => p.catId === sub.id).length;
+            sidebarHtml += `<div class="sidebar-item sidebar-subsub ${selectedCat===sub.id?'active':''}" onclick="filterCat('${sub.id}')"><span>${sub.icon||''} ${sub.name}</span><span class="sidebar-count">${subCnt}</span></div>`;
+          });
+        }
       });
     }
   });
 
-  document.getElementById('sidebar-list').innerHTML = html;
+  document.getElementById('sidebar-list').innerHTML = sidebarHtml;
 
-  // 모바일 셀렉트박스 업데이트 (대분류/소분류 그룹)
+  // 모바일 셀렉트박스 3단계
   const msel = document.getElementById('mobile-cat-select');
   if (msel) {
     let opts = `<option value="">전체 카테고리</option>`;
     mains.forEach(main => {
-      const subs = categories.filter(s => s.parentId === main.id);
-      if (subs.length === 0) {
+      const mids = categories.filter(m => m.parentId === main.id);
+      if (mids.length === 0) {
         opts += `<option value="${main.id}" ${selectedCat===main.id?'selected':''}>${main.icon||''} ${main.name}</option>`;
       } else {
         opts += `<optgroup label="${main.icon||''} ${main.name}">`;
         opts += `<option value="${main.id}" ${selectedCat===main.id?'selected':''}>${main.name} (전체)</option>`;
-        subs.forEach(sub => {
-          opts += `<option value="${sub.id}" ${selectedCat===sub.id?'selected':''}>　${sub.icon||''} ${sub.name}</option>`;
+        mids.forEach(mid => {
+          const subs = categories.filter(s => s.parentId === mid.id);
+          opts += `<option value="${mid.id}" ${selectedCat===mid.id?'selected':''}>　└ ${mid.name}</option>`;
+          subs.forEach(sub => {
+            opts += `<option value="${sub.id}" ${selectedCat===sub.id?'selected':''}>　　└ ${sub.name}</option>`;
+          });
         });
         opts += `</optgroup>`;
       }
@@ -872,12 +911,8 @@ function renderProducts() {
   const q = (document.getElementById('search-input')?.value||'').toLowerCase();
   let list = products;
   if (selectedCat) {
-    const subIds = categories.filter(c => c.parentId === selectedCat).map(c => c.id);
-    if (subIds.length > 0) {
-      list = list.filter(p => p.catId === selectedCat || subIds.includes(p.catId));
-    } else {
-      list = list.filter(p => p.catId === selectedCat);
-    }
+    const descIds = getAllDescendantIds(selectedCat);
+    list = list.filter(p => p.catId === selectedCat || descIds.includes(p.catId));
   }
   if (q) list = list.filter(p => (p.name||'').toLowerCase().includes(q)||(p.size||'').toLowerCase().includes(q)||(p.material||'').toLowerCase().includes(q));
   document.getElementById('result-count').textContent = `${list.length}개 제품`;
@@ -1016,30 +1051,52 @@ function renderAdminProds() {
     </tr>`;
   }).join('');
 }
+function getAllDescendantIds(id) {
+  const children = categories.filter(c => c.parentId === id).map(c => c.id);
+  return children.concat(...children.map(getAllDescendantIds));
+}
+
 function renderAdminCats() {
   const mains = categories.filter(c => !c.parentId);
-  document.getElementById('admin-cat-list').innerHTML = mains.map(c => {
-    const subs = categories.filter(s => s.parentId === c.id);
-    const subIds = subs.map(s => s.id);
-    const totalCnt = products.filter(p => p.catId === c.id || subIds.includes(p.catId)).length;
+  document.getElementById('admin-cat-list').innerHTML = mains.map(main => {
+    const allIds = getAllDescendantIds(main.id);
+    const totalCnt = products.filter(p => p.catId === main.id || allIds.includes(p.catId)).length;
+    const mids = categories.filter(m => m.parentId === main.id);
+
     let row = `<div class="cat-manage-item">
-      <div style="font-size:22px">${c.icon||'📦'}</div>
-      <div style="flex:1;font-size:13px;font-weight:600">${c.name}</div>
+      <div style="font-size:22px">${main.icon||'📦'}</div>
+      <div style="flex:1;font-size:13px;font-weight:600">${main.name} <span style="font-size:10px;color:var(--text-muted);font-weight:400">대분류</span></div>
       <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${totalCnt}개</div>
-      <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${c.id}')" style="margin-right:6px">수정</button>
-      <button class="btn btn-outline btn-sm" onclick="openCatModal('${c.id}')" style="margin-right:6px">+ 하위</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">삭제</button>
+      <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${main.id}')" style="margin-right:4px">수정</button>
+      <button class="btn btn-outline btn-sm" onclick="openCatModal('${main.id}')" style="margin-right:4px">+ 중분류</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteCat('${main.id}')">삭제</button>
     </div>`;
-    row += subs.map(s => {
-      const cnt = products.filter(p => p.catId === s.id).length;
-      return `<div class="cat-manage-item" style="padding-left:48px;background:var(--bg)">
-        <div style="font-size:18px">${s.icon||'📦'}</div>
-        <div style="flex:1;font-size:13px;color:#555">└ ${s.name}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${cnt}개</div>
-        <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${s.id}')" style="margin-right:6px">수정</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteCat('${s.id}')">삭제</button>
+
+    mids.forEach(mid => {
+      const midDescIds = getAllDescendantIds(mid.id);
+      const midCnt = products.filter(p => p.catId === mid.id || midDescIds.includes(p.catId)).length;
+      const subs = categories.filter(s => s.parentId === mid.id);
+
+      row += `<div class="cat-manage-item" style="padding-left:40px;background:#fafaf8">
+        <div style="font-size:18px">${mid.icon||'📦'}</div>
+        <div style="flex:1;font-size:13px;color:#444">└ ${mid.name} <span style="font-size:10px;color:var(--text-muted)">중분류</span></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${midCnt}개</div>
+        <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${mid.id}')" style="margin-right:4px">수정</button>
+        <button class="btn btn-outline btn-sm" onclick="openCatModal('${mid.id}')" style="margin-right:4px">+ 소분류</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCat('${mid.id}')">삭제</button>
       </div>`;
-    }).join('');
+
+      subs.forEach(sub => {
+        const subCnt = products.filter(p => p.catId === sub.id).length;
+        row += `<div class="cat-manage-item" style="padding-left:80px;background:#f5f4f0">
+          <div style="font-size:16px">${sub.icon||'📦'}</div>
+          <div style="flex:1;font-size:12px;color:#666">└ ${sub.name} <span style="font-size:10px;color:var(--text-muted)">소분류</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-right:12px">제품 ${subCnt}개</div>
+          <button class="btn btn-outline btn-sm" onclick="openEditCatModal('${sub.id}')" style="margin-right:4px">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCat('${sub.id}')">삭제</button>
+        </div>`;
+      });
+    });
     return row;
   }).join('');
 }
@@ -1048,15 +1105,29 @@ function renderAdminCats() {
 window.openProductModal = function(id) {
   editingProdId = id || null;
   document.getElementById('product-modal-title').textContent = id ? '제품 수정' : '제품 추가';
-  document.getElementById('f-cat').innerHTML = categories.filter(c => !c.parentId).map(main => {
-    const subs = categories.filter(s => s.parentId === main.id);
-    if (subs.length === 0) {
-      return `<option value="${main.id}">${main.icon||''} ${main.name}</option>`;
+  let catOpts = '';
+  categories.filter(c => !c.parentId).forEach(main => {
+    const mids = categories.filter(m => m.parentId === main.id);
+    if (mids.length === 0) {
+      catOpts += `<option value="${main.id}">${main.icon||''} ${main.name}</option>`;
+      return;
     }
-    const subOpts = `<option value="${main.id}">${main.name} (분류 미지정)</option>` +
-      subs.map(s => `<option value="${s.id}">${s.icon||''} ${s.name}</option>`).join('');
-    return `<optgroup label="${main.icon||''} ${main.name}">${subOpts}</optgroup>`;
-  }).join('');
+    catOpts += `<optgroup label="${main.icon||''} ${main.name}">`;
+    catOpts += `<option value="${main.id}">${main.name} (미지정)</option>`;
+    mids.forEach(mid => {
+      const subs = categories.filter(s => s.parentId === mid.id);
+      if (subs.length === 0) {
+        catOpts += `<option value="${mid.id}">　└ ${mid.icon||''} ${mid.name}</option>`;
+      } else {
+        catOpts += `<option value="${mid.id}">　└ ${mid.name} (미지정)</option>`;
+        subs.forEach(sub => {
+          catOpts += `<option value="${sub.id}">　　└ ${sub.icon||''} ${sub.name}</option>`;
+        });
+      }
+    });
+    catOpts += `</optgroup>`;
+  });
+  document.getElementById('f-cat').innerHTML = catOpts;
   if (id) {
     const p = products.find(x => x.id === id);
     document.getElementById('f-name').value = p.name;
@@ -1126,17 +1197,35 @@ window.saveProduct = async function() {
 // ── 카테고리 CRUD ──
 let editingCatId = null;
 
+function getDepth(id) {
+  const c = categories.find(x => x.id === id);
+  if (!c || !c.parentId) return 0;
+  return 1 + getDepth(c.parentId);
+}
+
+function buildParentOptions(excludeId) {
+  let opts = '<option value="">없음 (대분류로 추가)</option>';
+  categories.filter(c => !c.parentId && c.id !== excludeId).forEach(main => {
+    opts += `<option value="${main.id}">${main.icon||''} ${main.name} (대분류)</option>`;
+    categories.filter(m => m.parentId === main.id && m.id !== excludeId).forEach(mid => {
+      // 소분류(depth 2) 아래엔 추가 불가 → 중분류까지만 표시
+      opts += `<option value="${mid.id}">　└ ${mid.icon||''} ${mid.name} (중분류)</option>`;
+    });
+  });
+  return opts;
+}
+
 window.openCatModal = function(parentId) {
   editingCatId = null;
   document.getElementById('cat-f-name').value='';
   document.getElementById('cat-f-icon').value='';
-  const mains = categories.filter(c => !c.parentId);
   const parentSel = document.getElementById('cat-f-parent');
-  parentSel.innerHTML = '<option value="">없음 (대분류로 추가)</option>' +
-    mains.map(c => `<option value="${c.id}">${c.icon||''} ${c.name}</option>`).join('');
+  parentSel.innerHTML = buildParentOptions(null);
   parentSel.disabled = false;
   parentSel.value = parentId || '';
-  document.getElementById('cat-modal-title').textContent = parentId ? '하위 카테고리 추가' : '카테고리 추가';
+  const parentDepth = parentId ? getDepth(parentId) : -1;
+  const addingAs = parentDepth === -1 ? '대분류' : parentDepth === 0 ? '중분류' : '소분류';
+  document.getElementById('cat-modal-title').textContent = parentId ? `하위 카테고리 추가 (${addingAs})` : '카테고리 추가 (대분류)';
   document.getElementById('cat-modal').classList.remove('hidden');
 };
 
@@ -1146,12 +1235,9 @@ window.openEditCatModal = function(id) {
   editingCatId = id;
   document.getElementById('cat-f-name').value = c.name;
   document.getElementById('cat-f-icon').value = c.icon || '';
-  const mains = categories.filter(m => !m.parentId && m.id !== id);
   const parentSel = document.getElementById('cat-f-parent');
-  parentSel.innerHTML = '<option value="">없음 (대분류)</option>' +
-    mains.map(m => `<option value="${m.id}">${m.icon||''} ${m.name}</option>`).join('');
+  parentSel.innerHTML = buildParentOptions(id);
   parentSel.value = c.parentId || '';
-  // 대분류이면서 하위 카테고리가 있는 경우, 상위 변경 비활성화 (구조 보호)
   const hasSubs = categories.some(s => s.parentId === id);
   parentSel.disabled = hasSubs;
   document.getElementById('cat-modal-title').textContent = '카테고리 수정';
@@ -1176,10 +1262,10 @@ window.saveCat = async function() {
   closeCatModal(); renderAdminCats();
 };
 window.deleteCat = async function(id) {
-  const cnt = products.filter(p => p.catId === id).length;
-  if (cnt > 0) { alert(`이 카테고리에 제품 ${cnt}개가 있어 삭제할 수 없습니다.`); return; }
-  const subs = categories.filter(c => c.parentId === id);
-  if (subs.length > 0) { alert(`하위 카테고리가 ${subs.length}개 있어 삭제할 수 없습니다. 먼저 하위 카테고리를 삭제해 주세요.`); return; }
+  const descIds = getAllDescendantIds(id);
+  const prodCnt = products.filter(p => p.catId === id || descIds.includes(p.catId)).length;
+  if (prodCnt > 0) { alert(`이 카테고리(하위 포함)에 제품 ${prodCnt}개가 있어 삭제할 수 없습니다.`); return; }
+  if (descIds.length > 0) { alert(`하위 카테고리가 ${descIds.length}개 있어 삭제할 수 없습니다.\n먼저 하위 카테고리를 모두 삭제해 주세요.`); return; }
   if (!confirm('이 카테고리를 삭제할까요?')) return;
   await deleteCategoryToDB(id);
   categories = categories.filter(c => c.id !== id);
